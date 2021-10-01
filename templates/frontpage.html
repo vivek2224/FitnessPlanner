@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>OneFit</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link
+      rel="stylesheet"
+      type="text/css"
+      media="screen"
+      href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
+    />
+    <style>
+      .container{
+        margin: 0 auto;
+        height: 100%;
+        width: 100%;
+     }
+
+
+* {box-sizing: border-box;}
+body {font-family: Verdana, sans-serif;}
+.mySlides {display: none;}
+img {vertical-align: middle;}
+
+/* Slideshow container */
+.slideshow-container {
+  max-width: 90%;
+  height: 350px;
+  position: relative;
+  margin: auto;
+  border: 3px solid #333333;
+  border-radius: 20px;
+  background-color: #D9E5F2;
+}
+
+/* Caption text */
+.text {
+  color: #f2f2f2;
+  font-size: 15px;
+  padding: 8px 12px;
+  position: absolute;
+  bottom: 8px;
+  width: 100%;
+  text-align: center;
+}
+
+/* Number text (1/3 etc) */
+.numbertext {
+  color: #333333;
+  font-size: 15px;
+  padding: 8px 10px;
+  position: absolute;
+  top: 0;
+}
+
+/* The dots/bullets/indicators */
+.dot {
+  height: 15px;
+  width: 15px;
+  margin: 0 2px;
+  background-color: #bbb;
+  border-radius: 50%;
+  display: inline-block;
+  transition: background-color 0.6s ease;
+}
+
+.active {
+  background-color: #717171;
+}
+
+/* Fading animation */
+.fade {
+  -webkit-animation-name: fade;
+  -webkit-animation-duration: 1.5s;
+  animation-name: fade;
+  animation-duration: 1.5s;
+}
+
+@-webkit-keyframes fade {
+  from {opacity: .4}
+  to {opacity: 1}
+}
+
+@keyframes fade {
+  from {opacity: .4}
+  to {opacity: 1}
+}
+
+/* On smaller screens, decrease text size */
+@media only screen and (max-width: 300px) {
+  .text {font-size: 11px}
+}
+
+    </style>
+  </head>
+  <body style =  "position: relative; min-height: 100vh; background: linear-gradient(to right, white, #D9E5F2,#91BDEF);">
+    <nav class="navbar navbar-inverse" style = "margin-bottom:0px;">
+      <div class="container">
+        <div class="navbar-header">
+          <a class="navbar-brand" style = "font-size: 20px" >OneFit</a>
+        </div>
+             <div style = "font-size: 17px; float: right">
+          <ul class="nav navbar-nav">
+            <li><a href="/login">Login</a></li>
+            <li><a href="/register">Register</a></li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <div class="container" style = "position: absolute; padding: 0px; background-color: white; width:100%; height: 90%;">
+        <div  style = " text-align: center; background: linear-gradient(to right, white, #D9E5F2,#91BDEF); width:100%; float: left; height: 95%">
+            <br> <h1 style="font-size: 27px"><b>Achieve your fitness goals today, with OneFit</b></h1><br>
+            <div class="slideshow-container">
+
+
+<div class="mySlides fade">
+  <div class="numbertext">1 / 3</div>
+  <img style="width:50%; max-height: 344px" src="https://s.yimg.com/uu/api/res/1.2/DdytqdFTgtQuxVrHLDdmjQ--~B/aD03MTY7dz0xMDgwO3NtPTE7YXBwaWQ9eXRhY2h5b24-/https://media-mbst-pub-ue1.s3.amazonaws.com/creatr-uploaded-images/2019-11/7b5b5330-112b-11ea-a77f-7c019be7ecae">
+  <div class="text">Caption Text</div>
+</div>
+
+<div class="mySlides fade">
+  <div class="numbertext">2 / 3</div>
+    <img style="width:50%; max-height: 344px" src="https://s.yimg.com/uu/api/res/1.2/DdytqdFTgtQuxVrHLDdmjQ--~B/aD03MTY7dz0xMDgwO3NtPTE7YXBwaWQ9eXRhY2h5b24-/https://media-mbst-pub-ue1.s3.amazonaws.com/creatr-uploaded-images/2019-11/7b5b5330-112b-11ea-a77f-7c019be7ecae">
+  <div class="text">Caption Two</div>
+</div>
+
+<div class="mySlides fade">
+  <div class="numbertext">3 / 3</div>
+  <img style="width:50%; max-height: 344px" src="https://s.yimg.com/uu/api/res/1.2/DdytqdFTgtQuxVrHLDdmjQ--~B/aD03MTY7dz0xMDgwO3NtPTE7YXBwaWQ9eXRhY2h5b24-/https://media-mbst-pub-ue1.s3.amazonaws.com/creatr-uploaded-images/2019-11/7b5b5330-112b-11ea-a77f-7c019be7ecae">
+  <div class="text">Caption Three</div>
+</div>
+</div>
+<br>
+
+<div style="text-align:center">
+  <span class="dot"></span>
+  <span class="dot"></span>
+  <span class="dot"></span>
+</div>
+
+         </div>
+        <!--<div style = "padding-left: 10%; padding-right: 10%; padding-top: 15px"></div>-->
+    </div>
+        <!--<div style = "padding-left: 10%; padding-right: 10%; padding-top: 15px"></div>-->
+
+    </div>
+     <footer style = "background-color : #101010; height: 40px; position : absolute; bottom: 0; width: 100%">
+    </footer>
+    <!-- /.container -->
+    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  <script>
+  //Code retrieved from w3school
+      var slideIndex = 0;
+    showSlides();
+
+    function showSlides() {
+        var i;
+        var slides = document.getElementsByClassName("mySlides");
+        var dots = document.getElementsByClassName("dot");
+        for (i = 0; i < slides.length; i++) {
+           slides[i].style.display = "none";
+        }
+         slideIndex++;
+        if (slideIndex > slides.length) {slideIndex = 1}
+        for (i = 0; i < dots.length; i++) {
+         dots[i].className = dots[i].className.replace(" active", "");
+          }
+        slides[slideIndex-1].style.display = "block";
+        dots[slideIndex-1].className += " active";
+        setTimeout(showSlides, 2000); // Change image every 2 seconds
+      }
+  </script>
+  </body>
+
+</html>
