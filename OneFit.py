@@ -32,20 +32,86 @@ def register():
                                    name=name)
 
         cur = mysql.connection.cursor()
-        mysql.connection.commit()
         cur.execute("SELECT * FROM fitnessplanner WHERE email = %s", (email,))
         response = cur.fetchall()
         # print(cur.fetchall())
         if len(response) != 0:
             return render_template("register.html", message="Email is already in use", email=email, name=name)
-        cur.execute("INSERT INTO fitnessplanner(namw, email, pass, nutritionistEmail) VALUES(%s, %s, %s, %s)", (name, email, password, nutritionistEmail,))
+        cur.execute("INSERT INTO fitnessplanner(namew, email, pass, nutritionistEmail) VALUES(%s, %s, %s, %s)", (name, email, password, nutritionistEmail,))
         # cur = mysql.connection.cursor()
+        mysql.connection.commit()
+        cur.close()
         session['name'] = name
         session['email'] = email
         session['nutritionistEmail'] = nutritionistEmail
 
         return render_template("register.html", message="Registration successful", email=email,
                                name=name)
+
+
+@app.route('/login')
+def login():
+    #if login successful
+    #return redirect('/userHomepage') for user
+    #return redirect('/nutritionistHomepage') for nutritionist
+    #else
+    #some error message
+    return render_template("login.html")
+
+
+@app.route('/userHomepage')
+def userHomepage():
+    #display some daily data for user
+    return render_template("userHomepage.html")
+
+
+@app.route('/nutritionistHomepage')
+def nutritionistHomepage():
+    #display some daily data for nutritionist
+    return render_template("nutritionistHomepage.html")
+
+
+@app.route('/health')
+def health():
+    #health stuff (form info insert into databse & retrieve data)
+    return render_template("health.html")
+
+
+@app.route('/exercise')
+def exercise():
+    #exercise stuff (form info insert into databse & retrieve data)
+    return render_template("exercise.html")
+
+
+@app.route('/nutrition')
+def nutrition():
+    #nutrition stuff (form info insert into databse & retrieve data)
+    return render_template("nutrition.html")
+
+
+@app.route('/goals')
+def goals():
+    #goals stuff (form info insert into databse & retrieve data)
+    return render_template("goals.html")
+
+
+@app.route('/userAccount')
+def userAccount():
+    #get user account data, save revision & connection to nutritionist
+    return render_template("userAccount.html")
+
+
+@app.route('/clients')
+def clients():
+    #display list clients
+    #redirect to a client details page or use drop down menu to view details
+    return render_template("clients.html")
+
+
+@app.route('/nutritionistAccount')
+def nutritionistAccount():
+    #get nutritionist account data, save revision
+    return render_template("nutritionistAccount.html")
 
 
 if __name__ == '__main__':
