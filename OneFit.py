@@ -1,3 +1,4 @@
+import MySQLdb
 from flask import Flask, render_template, redirect, request, url_for, session
 from flask_mysqldb import MySQL
 
@@ -37,7 +38,7 @@ def register():
         # print(cur.fetchall())
         if len(response) != 0:
             return render_template("register.html", message="Email is already in use", email=email, name=name)
-        cur.execute("INSERT INTO fitnessplanner(namew, email, pass, nutritionistEmail) VALUES(%s, %s, %s, %s)", (name, email, password, nutritionistEmail,))
+        cur.execute("INSERT INTO fitnessplanner(name, email, pass, nutritionistEmail) VALUES(%s, %s, %s, %s)", (name, email, password, nutritionistEmail,))
         # cur = mysql.connection.cursor()
         mysql.connection.commit()
         cur.close()
@@ -49,14 +50,44 @@ def register():
                                name=name)
 
 
-@app.route('/login')
+@app.route('/login', methods=["GET", "POST"])
 def login():
-    #if login successful
-    #return redirect('/userHomepage') for user
-    #return redirect('/nutritionistHomepage') for nutritionist
-    #else
-    #some error message
-    return render_template("login.html")
+    if request.method == 'POST':
+        email = request.form['email']
+        password = request.form['password'].encode('utf-8')
+        cur = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+        cur.execute("SELECT * FROM fitnessplanner WHERE email=%s", (email,))
+        user = cur.fetchone()
+        cur.close()
+        ####################
+        curl = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+        curl.execute("SELECT * FROM fitnessplanner WHERE pass=%s", (password,))
+        n = curl.fetchone()
+        curl.close()
+        if user['pass'].encode('utf-8') == password:
+            session['name'] = user['name']
+            session['email'] = user['email']
+            # userHomepage()
+            return redirect(url_for("userHomepage"))
+        else:
+            return render_template("login.html", message="Password or email incorrect")
+            ####################
+            # if len(user) > 0:
+            #     #print('Hello world!', file=sys.stderr)
+            #     #return len(user)
+            #     if bcrypt.hashpw(password, user['password'].encode('utf-8')) == user['password'].encode('utf-8'):
+            #         session['name'] = user['name']
+            #         session['email'] = user['email']
+            #         return render_template("home.html")
+            #     else:
+            #         # session['name'] = user['name']
+            #         # session['email'] = user['email']
+            #         # return render_template("home.html")
+            #         return "Password incorrect"
+            # else:
+            #     return "Password or email incorrect"
+    else:
+        return render_template("login.html", message="")
 
 
 @app.route('/userHomepage')
