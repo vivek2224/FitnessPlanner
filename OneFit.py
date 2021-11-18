@@ -6,7 +6,7 @@ app = Flask(__name__, template_folder='templates')
 app.secret_key = "Hello"
 app.config['MYSQL_HOST'] = 'localhost'
 app.config['MYSQL_USER'] = 'root'
-app.config['MYSQL_PASSWORD'] = 'rootpassword'
+app.config['MYSQL_PASSWORD'] = 'Cmpe133!'
 app.config['MYSQL_DB'] = 'onefit'
 app.config['MYSQL_CURSORCLASS'] = 'DictCursor'
 mysql = MySQL(app)
@@ -102,7 +102,7 @@ def nutritionistHomepage():
     return render_template("nutritionistHomepage.html")
 
 
-@app.route('/health')
+@app.route('/health', methods=["GET", "POST"])
 def health():
     #health stuff (form info insert into databse & retrieve data)
     return render_template("health.html")
@@ -144,6 +144,10 @@ def nutritionistAccount():
     #get nutritionist account data, save revision
     return render_template("nutritionistAccount.html")
 
+@app.route('/logout')
+def logout():
+    session.clear()
+    return render_template("frontpage.html")
 
 if __name__ == '__main__':
     app.secret_key = "akakakakjajhaaaa"

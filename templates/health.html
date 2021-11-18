@@ -13,13 +13,13 @@
     />
 </head>
 <body style =  "position: relative; min-height: 100vh; background: linear-gradient(#81DDF3, #A7E9F8, white);">
-    <nav class="navbar navbar-inverse" style = "margin-bottom:0px;">
+    <nav class="navbar navbar-inverse" style = "margin-bottom:0px">
       <div class="container">
         <div class="navbar-header">
-          <a class="navbar-brand" href="/userHomepage" style = "font-size: 20px" >OneFit</a>
+          <a class="navbar-brand" href="/userHomepage" style = "font-size: 20px; font-family: cursive" >OneFit</a>
         </div>
         <div style = "font-size: 17px; float: right">
-          <ul class="nav navbar-nav">
+          <ul class="nav navbar-nav" style="font-family: cursive">
             <li><a href="/health">Health</a></li>
             <li><a href="/exercise">Exercise</a></li>
             <li><a href="/nutrition">Nutrition</a></li>
@@ -30,8 +30,51 @@
         </div>
       </div>
     </nav>
-    <footer style = "background-color : #101010; height: 40px; position : absolute; bottom: 0; width: 100%">
-     <p style="text-align: center; font-size: 20px; color: gray;">OneFit</p>
-    </footer>
+
+    <div class="container"
+        style = "position: center; margin-left: 10%; margin-right: 10%; padding: 0px; width:40%; height: 50%;">
+        <div style = "padding-left: 10%; padding-right: 10%; padding-top: 15px">
+            <h3><b>Health Data</b></h3>
+            <br>
+            <form>
+                <div class="form-group">
+                <label>Height:</label>
+                <input type="text" class="form-control" name="height" />
+                <link rel="stylesheet" href="toggle-radios.css">
+                <div class="toggle-radio">
+                    <input type="radio" name="default" id="in_option" value="inches" checked>
+                    <label for="in_option">in. </label>
+
+                    <input type="radio" name="default" id="cm_option" value="cm">
+                    <label for="cm_option">cm </label>
+                </div>
+            </div></form>
+            <form>
+                <div class="form-group">
+                <label>Weight:</label>
+                <input type="text" class="form-control" name="weight" />
+
+                    <div class="toggle-radio">
+                    <input type="radio" name="default" id="lbs_option" value="lbs" checked>
+                    <label for="lbs_option">lbs </label>
+
+                    <input type="radio" name="default" id="kg_option" value="kg">
+                    <label for="kg_option">kg </label>
+                </div>
+            </div>
+                <form><button type="button" class="btn btn-primary" style = "width:30%;height:10%">Save</button></form>
+                    <div class="form-group" name ="bmr">
+                        <h4><label>BMR:</label></h4>
+                        <h4><label>BMI:</label></h4>
+                    </div>
+                </form>
+    </div>
+</div>
+    <!-- /.container -->
+    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 </body>
+<footer style = "background-color : cadetblue; height: 40px; position : absolute; bottom: 0; width: 100%">
+         <p style="text-align: center; font-size: 20px; font-family: cursive; color: whitesmoke;">OneFit</p>
+    </footer>
 </html>
