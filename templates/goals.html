@@ -1,6 +1,6 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
+<html>
+  <head>
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <title>Goals</title>
@@ -11,8 +11,18 @@
       media="screen"
       href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
     />
-</head>
-<body style =  "position: relative; min-height: 100vh; background: linear-gradient(#81DDF3, #A7E9F8, white);">
+    <style>
+     .container{
+       margin: 0 auto;
+       height: 100%;
+       width: 100%;
+     }
+     .hide {
+       display: none;
+     }
+    </style>
+  </head>
+  <body style =  "position: relative; min-height: 100vh; margin-bottom:50px; background: linear-gradient(#81DDF3, #A7E9F8, white); ">
     <nav class="navbar navbar-inverse" style = "margin-bottom:0px;">
       <div class="container">
         <div class="navbar-header">
@@ -30,8 +40,118 @@
         </div>
       </div>
     </nav>
-    <footer style = "background-color : #101010; height: 40px; position : absolute; bottom: 0; width: 100%">
-     <p style="text-align: center; font-size: 20px; color: gray;">OneFit</p>
-    </footer>
-</body>
+
+    <div class="container">
+      <div style = "padding-left: 10%; padding-right: 10%; padding-top: 15px">
+        <h3> <b>Enter New Goals</b></h3>
+          <form class="form-inline" action="/goals" method="POST" style = "padding-top: 5px">
+           <div class="form-group mb-2">
+             <select class="form-control"; name="goalcategory";>
+                <option value="10">Select a Category</option>
+                <option value="1">Weight Goal</option>
+                <option value="2">Net Calories Goal</option>
+             </select>
+           </div>
+           <div class="form-group mx-sm-3 mb-2">
+             <input type="number" class="form-control" name="amount" placeholder="Goal Amount" />
+           </div>
+           <button type="submit" class="btn btn-primary mb-2">Save</button>
+           <p id = "message" style = "font-size: 15px; color: red"> {{message}} </p>
+          </form></br>
+        <h3><b>Current Goals</b></h3>
+         <form class="form-inline" action="/goals" method="POST" style = "padding-top: 5px">
+           <div class="form-group mb-2">
+             <select class="form-control"; name="selectcategory"; id="category">
+                <option value="100">Choose Display Option</option>
+                <option value="10">Show All Goals</option>
+                <option value="1">Show Weight Goal</option>
+                <option value="2">Show Net Calories Goal</option>
+             </select>
+           </div>
+         </form></br>
+         <div id="1" class="hide">
+          <p><b>Weight Goals:</b></p>
+          <table style="width:45%">
+            {% for weights in currentWeightGoals %}
+            <tr>
+              <td>Created: {{weights.date}}</td>
+              <td>{{weights.amount}}</td>
+              <td>
+                <form action="/delete_goal" method="POST" style = "padding-top: 5px">
+                   <input type="hidden" name="category" value="1">
+                   <input type="hidden" value="{{weights.date}}" name="goal_delete"/>
+                   <button type="submit" class="btn btn-primary btn-sm">Remove</button>
+                </form>
+              </td>
+            </tr>
+            {% endfor %}
+          </table></br>
+         </div>
+         <div id="2" class="hide">
+          <p><b>Net Calories Goals:</b></p>
+          <table style="width:45%">
+            {% for netcalories in currentCalorieGoals %}
+            <tr>
+              <td>Created: {{netcalories.date}}</td>
+              <td>{{netcalories.amount}}</td>
+              <td>
+                <form action="/delete_goal" method="POST" style = "padding-top: 5px">
+                   <input type="hidden" name="category" value="2">
+                   <input type="hidden" value="{{netcalories.date}}" name="goal_delete"/>
+                   <button type="submit" class="btn btn-primary btn-sm">Remove</button>
+                </form>
+              </td>
+            </tr>
+            {% endfor %}
+          </table></br>
+         </div>
+         <div id="10" class="hide">
+          <p><b>All Goals:</b></p>
+          <table style="width:45%">
+            {% for goals in currentGoals %}
+            <tr>
+              <td>Created: {{goals.date}}</td>
+              <td>{{goals.category}}</td>
+              <td>{{goals.amount}}</td>
+            </tr>
+            {% endfor %}
+          </table></br>
+         </div>
+        <h3><b>Achieved Goals</b></h3>
+         <table style="width:80%">
+          {% for agoals in achievedGoals %}
+          <tr>
+            <td> Created: {{agoals.date}}</td>
+            <td>{{agoals.category}}</td>
+            <td>{{agoals.amount}}</td>
+            <td>Completed: {{agoals.completion}}</td>
+          </tr>
+          {% endfor %}
+         </table></br>
+      </div>
+    </div>
+    <!-- /.container -->
+    <script>
+      if (history.replaceState) {
+        history.replaceState(null, null, location.href); //prevent form resubmission
+      }
+      document.getElementById('category').addEventListener('change',
+      function () {
+        'use strict';
+        var vis = document.querySelector('.vis'),
+        category = document.getElementById(this.value);
+        if (vis !== null) {
+          vis.className = 'hide';
+        }
+        if (category !== null) {
+          category.className = 'vis';
+        }
+      });
+    </script>
+    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  </body>
+  <footer style = "background-color : #101010; height: 40px; position : fixed; bottom: 0; width: 100%">
+    <p style="text-align: center; font-size: 20px; color: gray;">OneFit</p>
+  </footer>
 </html>
