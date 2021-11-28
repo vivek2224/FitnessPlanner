@@ -40,32 +40,17 @@
                 <div class="form-group">
                 <label>Height:</label>
                 <input type="text" class="form-control" name="height" />
-                <link rel="stylesheet" href="toggle-radios.css">
-                <div class="toggle-radio">
-                    <input type="radio" name="default" id="in_option" value="inches" checked>
-                    <label for="in_option">in. </label>
-
-                    <input type="radio" name="default" id="cm_option" value="cm">
-                    <label for="cm_option">cm </label>
-                </div>
             </div></form>
             <form>
                 <div class="form-group">
                 <label>Weight:</label>
                 <input type="text" class="form-control" name="weight" />
-
-                    <div class="toggle-radio">
-                    <input type="radio" name="default" id="lbs_option" value="lbs" checked>
-                    <label for="lbs_option">lbs </label>
-
-                    <input type="radio" name="default" id="kg_option" value="kg">
-                    <label for="kg_option">kg </label>
-                </div>
             </div>
-                <form><button type="button" class="btn btn-primary" style = "width:30%;height:10%">Save</button></form>
+                <button type="submit" class="btn btn-primary mb-2">Save</button>
+                <p id=message style = "font-size: 15px; color: red"> {{message}} </p>
                     <div class="form-group" name ="bmr">
-                        <h4><label>BMR:</label></h4>
-                        <h4><label>BMI:</label></h4>
+                        <h4><label>BMI:</label></h4> <label>{{bmi}}</label>
+                        <h4><label>BMR:</label></h4> <label>{{bmr}}</label>
                     </div>
                 </form>
     </div>

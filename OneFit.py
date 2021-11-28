@@ -7,7 +7,7 @@ app = Flask(__name__, template_folder='templates')
 app.secret_key = "Hello"
 app.config['MYSQL_HOST'] = 'localhost'
 app.config['MYSQL_USER'] = 'root'
-app.config['MYSQL_PASSWORD'] = 'Sunflora1!'
+app.config['MYSQL_PASSWORD'] = 'Cmpe133!'
 app.config['MYSQL_DB'] = 'onefit'
 app.config['MYSQL_CURSORCLASS'] = 'DictCursor'
 mysql = MySQL(app)
@@ -85,21 +85,6 @@ def login():
                 return redirect(url_for("nutritionistHomepage"))
         else:
             return render_template("login.html", message="Password or email incorrect")
-            ####################
-            # if len(user) > 0:
-            #     #print('Hello world!', file=sys.stderr)
-            #     #return len(user)
-            #     if bcrypt.hashpw(password, user['password'].encode('utf-8')) == user['password'].encode('utf-8'):
-            #         session['name'] = user['name']
-            #         session['email'] = user['email']
-            #         return render_template("home.html")
-            #     else:
-            #         # session['name'] = user['name']
-            #         # session['email'] = user['email']
-            #         # return render_template("home.html")
-            #         return "Password incorrect"
-            # else:
-            #     return "Password or email incorrect"
     else:
         return render_template("login.html", message="")
 
@@ -119,8 +104,18 @@ def nutritionistHomepage():
 @app.route('/health', methods=["GET", "POST"])
 def health():
     #health stuff (form info insert into databse & retrieve data)
-    return render_template("health.html")
-
+    if request.method == 'POST':
+        height = request.form['height']
+        weight = request.form['weight']
+        date = datetime.now()
+        cur = mysql.connection.cursor()
+        cur.execute("INSERT INTO fitness(user_id, date, height, weight) VALUES(%s, %s, %s, %s)",
+                    (session['user_id'], date.strftime("%m/%d/%y"), height, weight,))
+        mysql.connection.commit()
+        cur.close()
+        return render_template("health.html", message="Saved Successfully")
+    else:
+        return render_template("health.html", message="Test")
 
 @app.route('/exercise')
 def exercise():
