@@ -108,14 +108,15 @@ def health():
         height = request.form['height']
         weight = request.form['weight']
         date = datetime.now()
+        bmi = (int(weight)*703)/(int(height)**2)
         cur = mysql.connection.cursor()
-        cur.execute("INSERT INTO fitness(user_id, date, height, weight) VALUES(%s, %s, %s, %s)",
-                    (session['user_id'], date.strftime("%m/%d/%y"), height, weight,))
+        cur.execute("INSERT INTO fitness(user_id, date, bmi, height, weight) VALUES(%s, %s, %s, %s, %s)",
+                    (session['user_id'], date.strftime("%m/%d/%y"), bmi, height, weight,))
         mysql.connection.commit()
         cur.close()
         return render_template("health.html", message="Saved Successfully")
     else:
-        return render_template("health.html", message="Test")
+        return render_template("health.html", message="")
 
 @app.route('/exercise')
 def exercise():

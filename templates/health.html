@@ -31,28 +31,27 @@
       </div>
     </nav>
 
-    <div class="container"
-        style = "position: center; margin-left: 10%; margin-right: 10%; padding: 0px; width:40%; height: 50%;">
+    <div class="container">
         <div style = "padding-left: 10%; padding-right: 10%; padding-top: 15px">
-            <h3><b>Health Data</b></h3>
-            <br>
-            <form>
+            <h3><b>Health Data</b></h3><br>
+            <form class="form-vertical" action="/health" method="POST" style = "padding-top: 5px">
                 <div class="form-group">
-                <label>Height:</label>
-                <input type="text" class="form-control" name="height" />
-            </div></form>
-            <form>
-                <div class="form-group">
-                <label>Weight:</label>
-                <input type="text" class="form-control" name="weight" />
+                    <label>Height:</label>
+                <input type="text" class="form-control" name="height" placeholder="inches"/>
             </div>
-                <button type="submit" class="btn btn-primary mb-2">Save</button>
-                <p id=message style = "font-size: 15px; color: red"> {{message}} </p>
-                    <div class="form-group" name ="bmr">
-                        <h4><label>BMI:</label></h4> <label>{{bmi}}</label>
-                        <h4><label>BMR:</label></h4> <label>{{bmr}}</label>
+                <div class="form-group">
+                    <label>Weight:</label>
+                <input type="text" class="form-control" name="weight" placeholder="lbs"/>
                     </div>
-                </form>
+                    <div class="form-horizontal">
+                        <button type="submit" class="btn btn-primary mb-2">Save</button>
+                        <p id=message style = "font-size: 15px; color: red"> {{message}} </p>
+                    </div>
+                <div class="form-inline">
+                    <h4><label>BMI:</label></h4><label>{{bmi}}</label>
+                    <h4><label>BMR:</label></h4><label>{{bmr}}</label>
+                </div>
+            </form>
     </div>
 </div>
     <!-- /.container -->
