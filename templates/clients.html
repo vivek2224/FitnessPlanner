@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
+  <head>
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <title>Clients</title>
@@ -11,14 +11,22 @@
       media="screen"
       href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
     />
-</head>
-<body style =  "position: relative; min-height: 100vh; background: linear-gradient(#81DDF3, #A7E9F8, white);">
+    <style>
+     .container{
+       margin: 0 auto;
+       height: 100%;
+       width: 100%;
+     }
+    </style>
+  </head>
+  <body style =  "position: relative; min-height: 100vh; background: linear-gradient(#81DDF3, #A7E9F8, white);">
+    <!--nutritionist nav bar at the top of the page-->
     <nav class="navbar navbar-inverse" style = "margin-bottom:0px;">
       <div class="container">
         <div class="navbar-header">
           <a class="navbar-brand" href="/nutritionistHomepage" style = "font-size: 20px" >OneFit</a>
         </div>
-             <div style = "font-size: 17px; float: right">
+        <div style = "font-size: 17px; float: right">
           <ul class="nav navbar-nav">
             <li><a href="/clients">Clients</a></li>
             <li><a href="/nutritionistAccount">Account</a></li>
@@ -27,8 +35,122 @@
         </div>
       </div>
     </nav>
-    <footer style = "background-color : #101010; height: 40px; position : absolute; bottom: 0; width: 100%">
-     <p style="text-align: center; font-size: 20px; color: gray;">OneFit</p>
-    </footer>
-</body>
+    <div class="container">
+      <div style = "padding-left: 10%; padding-right: 10%; padding-top: 15px">
+        <!--Table for showing list of connected users with option to view information-->
+        <h3><b>Connected Users</b></h3>
+          <table style = "width:50%">
+           {% for user in connectedUsers%}
+           <tr>
+            <td style = "font-size:15px">{{user.name}}</td>
+            <td>
+                <form action="/clients" method="POST" style = "padding-top: 5px">
+                   <input type="hidden" value="{{user.user_id}}" name="user"/>
+                   <button type="submit" class="btn btn-primary btn-sm" name="userInfo" onclick="clicked()">View Info</button>
+                </form>
+            </td>
+           </tr>
+           {% endfor %}
+           <tr>
+            <td><p id="noneMessage" style = "font-size: 20px"> {{noneMessage}}</p></td>
+           </tr>
+          </table></br>
+        <!--Table for showing the information of the selected connected user from clicking the 'View Info' button-->
+        <h3><b>Connected User's Info</b></h3>
+          <table style = "width:60%">
+            <tr>
+             <td><b>Name:</b></td>
+             <td colspan="2">{{viewedUser.name}}</td>
+            </tr>
+            <tr>
+             <td><b>Height:</b></td>
+             <td>{{heightUser.height}}</td>
+             <td>inches</td>
+            </tr>
+            <tr>
+             <td><b>Weight:</b></td>
+             <td>{{weightUser.weight}}</td>
+             <td>lbs</td>
+            </tr>
+            <tr>
+             <td><b>BMI:</b></td>
+             <td>{{bmiUser.BMI}}</td>
+             <td id="bmidesc"></td>
+            </tr>
+            <tr>
+             <td><b>BMR:</b></td>
+             <td>{{bmrUser.BMR}}</td>
+             <td>calories/day</td>
+            </tr>
+            <tr>
+             <td><b>Calorie Intake:</b></td>
+             <td>{{calorieinUser.caloriesIntake}}</td>
+             <td>calories</td>
+            </tr>
+            <tr>
+             <td><b>Weight Goal:</b></td>
+             <td>{{wgoalUser.amount}}</td>
+             <td>lbs</td>
+            </tr>
+            <tr>
+             <td><b>Net Calories Goal:</b></td>
+             <td>{{cgoalUser.amount}}</td>
+             <td>calories</td>
+            </tr>
+            <tr>
+             <td><b>Previous Feedback:</b></td>
+             <td colspan="2">{{viewedUser.feedback}}</td>
+            </tr>
+            <tr>
+             <td colspan="3">
+               <form action="/clients" method="POST" style = "padding-top: 5px">
+                 <div class="form-group">
+                   <label>Provide Feedback:</label>
+                 </div>
+                 <div class="form-group">
+                   <textarea class="form-control" name="feedbackDetails" rows="4" cols="50"></textarea>
+                 </div>
+                 <div class="form-group">
+                   <input type="hidden" value="{{viewedUser.user_id}}" name="userRecommend"/>
+                   <button id="subButton" disabled="true" type="submit" class="btn btn-primary mb-2" name="feedback">Save</button>
+                 </div>
+                 <p id="message" style = "font-size: 15px; color: red"> {{message}}</p>
+               </form></br>
+             </td>
+            </tr>
+          </table></br>
+      </div>
+    </div>
+    <script>
+      // Prevent form resubmission
+      if (history.replaceState) {
+        history.replaceState(null, null, location.href);
+      }
+
+      // Find out the BMI range of the user and display it in the corresponding row-column
+      var bmi = {{bmiUser.BMI}};
+      var bmidesc = document.getElementById("bmidesc");
+      if (bmi < 18.5) {
+        bmidesc.innerText = "Underweight";
+      } else if (bmi >= 18.5 && bmi <= 24.9) {
+        bmidesc.innerText = "Normal";
+      } else if (bmi >= 25 && bmi <= 29.9) {
+        bmidesc.innerText = "Overweight";
+      } else {
+        bmidesc.innerText = "Obese";
+      }
+
+      // If the 'View Info' button is clicked, then enable the submit button for the feedback form
+      var clicked = 0;
+      function clicked() {
+        clicked = 1;
+      }
+      if(clicked = 1) {
+        document.getElementById("subButton").disabled = false;
+      }
+    </script>
+  </body>
+  <footer style = "background-color : #101010; height: 40px; position : fixed; bottom: 0; width: 100%">
+    <p style = "text-align: center; font-size: 20px; color: gray;">OneFit</p>
+  </footer>
 </html>

@@ -22,7 +22,8 @@
      }
     </style>
   </head>
-  <body style =  "position: relative; min-height: 100vh; margin-bottom:50px; background: linear-gradient(#81DDF3, #A7E9F8, white); ">
+  <body style = "position: relative; min-height: 100vh; margin-bottom:50px; background: linear-gradient(#81DDF3, #A7E9F8, white);">
+    <!--user nav bar at the top of the page-->
     <nav class="navbar navbar-inverse" style = "margin-bottom:0px;">
       <div class="container">
         <div class="navbar-header">
@@ -40,13 +41,13 @@
         </div>
       </div>
     </nav>
-
     <div class="container">
       <div style = "padding-left: 10%; padding-right: 10%; padding-top: 15px">
-        <h3> <b>Enter New Goals</b></h3>
+        <!--Form for submitting a new goal of a certain category-->
+        <h3><b>Enter New Goals</b></h3>
           <form class="form-inline" action="/goals" method="POST" style = "padding-top: 5px">
            <div class="form-group mb-2">
-             <select class="form-control"; name="goalcategory";>
+             <select class="form-control" name="goalcategory">
                 <option value="10">Select a Category</option>
                 <option value="1">Weight Goal</option>
                 <option value="2">Net Calories Goal</option>
@@ -55,13 +56,14 @@
            <div class="form-group mx-sm-3 mb-2">
              <input type="number" class="form-control" name="amount" placeholder="Goal Amount" />
            </div>
-           <button type="submit" class="btn btn-primary mb-2">Save</button>
-           <p id = "message" style = "font-size: 15px; color: red"> {{message}} </p>
+           <button type="submit" class="btn btn-primary mb-2" name="newGoal">Save</button>
+           <p id="message" style = "font-size: 15px; color: red"> {{message}} </p>
           </form></br>
+        <!--Form for selecting different categories of current goals to display-->
         <h3><b>Current Goals</b></h3>
          <form class="form-inline" action="/goals" method="POST" style = "padding-top: 5px">
            <div class="form-group mb-2">
-             <select class="form-control"; name="selectcategory"; id="category">
+             <select class="form-control" name="selectcategory" id="category">
                 <option value="100">Choose Display Option</option>
                 <option value="10">Show All Goals</option>
                 <option value="1">Show Weight Goal</option>
@@ -69,72 +71,78 @@
              </select>
            </div>
          </form></br>
+         <!--div for showing current goals for the weight category with option to remove-->
          <div id="1" class="hide">
           <p><b>Weight Goals:</b></p>
-          <table style="width:45%">
-            {% for weights in currentWeightGoals %}
+          <table style = "width:45%">
+            {% for weightGoal in currentWeightGoals %}
             <tr>
-              <td>Created: {{weights.date}}</td>
-              <td>{{weights.amount}}</td>
+              <td>Created: {{weightGoal.date}}</td>
+              <td>{{weightGoal.amount}}</td>
               <td>
-                <form action="/delete_goal" method="POST" style = "padding-top: 5px">
+                <form action="/goals" method="POST" style = "padding-top: 5px">
                    <input type="hidden" name="category" value="1">
-                   <input type="hidden" value="{{weights.date}}" name="goal_delete"/>
-                   <button type="submit" class="btn btn-primary btn-sm">Remove</button>
+                   <input type="hidden" value="{{weightGoal.date}}" name="goal_delete"/>
+                   <button type="submit" class="btn btn-primary btn-sm" name="removeGoal">Remove</button>
                 </form>
               </td>
             </tr>
             {% endfor %}
           </table></br>
          </div>
+         <!--div for showing current goals for the net calories category with option to remove-->
          <div id="2" class="hide">
           <p><b>Net Calories Goals:</b></p>
-          <table style="width:45%">
-            {% for netcalories in currentCalorieGoals %}
+          <table style = "width:45%">
+            {% for netcaloriesGoal in currentCalorieGoals %}
             <tr>
-              <td>Created: {{netcalories.date}}</td>
-              <td>{{netcalories.amount}}</td>
+              <td>Created: {{netcaloriesGoal.date}}</td>
+              <td>{{netcaloriesGoal.amount}}</td>
               <td>
-                <form action="/delete_goal" method="POST" style = "padding-top: 5px">
+                <form action="/goals" method="POST" style = "padding-top: 5px">
                    <input type="hidden" name="category" value="2">
-                   <input type="hidden" value="{{netcalories.date}}" name="goal_delete"/>
-                   <button type="submit" class="btn btn-primary btn-sm">Remove</button>
+                   <input type="hidden" value="{{netcaloriesGoal.date}}" name="goal_delete"/>
+                   <button type="submit" class="btn btn-primary btn-sm" name="removeGoal">Remove</button>
                 </form>
               </td>
             </tr>
             {% endfor %}
           </table></br>
          </div>
+         <!--div for showing all current goals-->
          <div id="10" class="hide">
           <p><b>All Goals:</b></p>
-          <table style="width:45%">
-            {% for goals in currentGoals %}
+          <table style = "width:45%">
+            {% for goal in currentGoals %}
             <tr>
-              <td>Created: {{goals.date}}</td>
-              <td>{{goals.category}}</td>
-              <td>{{goals.amount}}</td>
+              <td>Created: {{goal.date}}</td>
+              <td>{{goal.category}}</td>
+              <td>{{goal.amount}}</td>
             </tr>
             {% endfor %}
           </table></br>
          </div>
+        <!--Table displaying achieved goals for the user-->
         <h3><b>Achieved Goals</b></h3>
-         <table style="width:80%">
-          {% for agoals in achievedGoals %}
+         <table style = "width:80%">
+          {% for achievedGoal in achievedGoals %}
           <tr>
-            <td> Created: {{agoals.date}}</td>
-            <td>{{agoals.category}}</td>
-            <td>{{agoals.amount}}</td>
-            <td>Completed: {{agoals.completion}}</td>
+            <td> Created: {{achievedGoal.date}}</td>
+            <td>{{achievedGoal.category}}</td>
+            <td>{{achievedGoal.amount}}</td>
+            <td>Completed: {{achievedGoal.completion}}</td>
           </tr>
           {% endfor %}
          </table></br>
       </div>
     </div>
-    <!-- /.container -->
     <script>
+      // Prevent form resubmission
       if (history.replaceState) {
-        history.replaceState(null, null, location.href); //prevent form resubmission
+        history.replaceState(null, null, location.href);
       }
+
+      // Show certain div based on the category selected for current goals
       document.getElementById('category').addEventListener('change',
       function () {
         'use strict';
@@ -152,6 +160,6 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
   </body>
   <footer style = "background-color : #101010; height: 40px; position : fixed; bottom: 0; width: 100%">
-    <p style="text-align: center; font-size: 20px; color: gray;">OneFit</p>
+    <p style = "text-align: center; font-size: 20px; color: gray;">OneFit</p>
   </footer>
 </html>

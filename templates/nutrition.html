@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
+  <head>
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <title>Nutrition</title>
@@ -11,8 +11,16 @@
       media="screen"
       href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
     />
-</head>
-<body style =  "position: relative; min-height: 100vh; background: linear-gradient(#81DDF3, #A7E9F8, white);">
+    <style>
+     .container{
+       margin: 0 auto;
+       height: 100%;
+       width: 100%;
+     }
+    </style>
+  </head>
+  <body style =  "position: relative; min-height: 100vh; background: linear-gradient(#81DDF3, #A7E9F8, white);">
+    <!--user nav bar at the top of the page-->
     <nav class="navbar navbar-inverse" style = "margin-bottom:0px;">
       <div class="container">
         <div class="navbar-header">
@@ -30,8 +38,96 @@
         </div>
       </div>
     </nav>
-    <footer style = "background-color : #101010; height: 40px; position : absolute; bottom: 0; width: 100%">
-     <p style="text-align: center; font-size: 20px; color: gray;">OneFit</p>
-    </footer>
-</body>
+    <div class="container">
+      <div style = "padding-left: 10%; padding-right: 10%; padding-top: 15px">
+        <h3><b>Enter Your Nutritional Data</b></h3>
+          <!--Form for submitting the day's calorie intake-->
+          <form class="form-inline" action="/nutrition" method="POST" style = "padding-top: 5px">
+           <div class="form-group mb-2">
+               <label>Calorie Intake:</label>
+           </div>
+           <div class="form-group mx-sm-3 mb-2">
+             <input type="number" class="form-control" name="calorieInAmount" placeholder="in calories"/>
+           </div>
+           <button type="submit" class="btn btn-primary mb-2" name="calorieIn">Save</button>
+           <p id="calorieInMessage" style = "font-size: 15px; color: red"> {{calorieInMessage}} </p>
+          </form></br>
+          <!--Form for submitting the day's water intake-->
+          <form class="form-inline" action="/nutrition" method="POST" style = "padding-top: 5px">
+           <div class="form-group mb-2">
+               <label>Water Intake:</label>
+           </div>
+           <div class="form-group mx-sm-3 mb-2">
+             <input type="number" class="form-control" name="waterAmount" placeholder="in ounces"/>
+           </div>
+           <button type="submit" class="btn btn-primary mb-2" name="water">Save</button>
+           <p id="waterMessage" style = "font-size: 15px; color: red"> {{waterMessage}}</p>
+          </form></br>
+        <!--Charts for calorie intake and water intake data displayed here-->
+        <h3><b>Track Your Data</b></h3>
+          <canvas id="calorieInChart" style = "width:100%; max-width:600px; margin-bottom:50px;"></canvas>
+          <canvas id="waterChart" style = "width:100%; max-width:600px; margin-bottom:50px;"></canvas>
+      </div>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>
+    <script>
+      // Prevent form resubmission
+      if (history.replaceState) {
+        history.replaceState(null, null, location.href);
+      }
+
+      // Line graph using Chart.js for tracking calorie intake data
+      new Chart("calorieInChart", {
+        type: "line",
+        data: {
+           // x-axis has the dates of each data entry
+           labels: [{% for calories in calorieIntakeData %}
+                    "{{calories.date}}", {% endfor %}],
+           datasets: [{
+              label: 'calories',
+              fill: false,
+              lineTension: 0,
+              backgroundColor: "rgba(0,0,255,1.0)",
+              borderColor: "rgba(0,0,255,0.1)",
+              // y-axis has calories for each data entry
+              data: [{% for calories in calorieIntakeData %}
+                     "{{calories.caloriesIntake}}", {% endfor %}]
+           }]
+        },
+        options: {
+           // disable the default clicking functionality for the legend
+           legend: {onClick: (e) => e.stopPropagation()},
+           title: {display:true, text: 'Calorie Intake'}
+        }
+      });
+
+      // Bar graph using Chart.js for tracking water intake data
+      new Chart("waterChart", {
+        type: "bar",
+        data: {
+           // x-axis has the dates of each data entry
+           labels: [{% for water in waterIntakeData %}
+                    "{{water.date}}", {% endfor %}],
+           datasets: [{
+              label: 'oz.',
+              fill: false,
+              lineTension: 0,
+              backgroundColor: "rgba(1,168,254,0.5)",
+              // y-axis has water ounces for each data entry
+              data: [{% for water in waterIntakeData %}
+                     "{{water.waterIntake}}", {% endfor %}]
+           }]
+        },
+        options: {
+           legend: {onClick: (e) => e.stopPropagation()},
+           title: {display:true, text: 'Water Intake'},
+           // change default to have y-axis start at 0
+           scales: {yAxes: [{ticks:{beginAtZero: true}}]}
+        }
+      });
+    </script>
+  </body>
+  <footer style = "background-color : #101010; height: 40px; position : fixed; bottom: 0; width: 100%">
+    <p style = "text-align: center; font-size: 20px; color: gray;">OneFit</p>
+  </footer>
 </html>
