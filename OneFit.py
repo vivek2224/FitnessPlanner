@@ -28,13 +28,19 @@ def register():
         user_role = 0  # default user role
         # Get all the values from the registration form
         name = request.form['name']
+        formcategory = request.form.get('gendercategory')
         email = request.form['email']
         password = request.form['password'].encode('utf-8')
         nutritionistEmail = request.form['nutritionistEmail']
         # hash_password = bcrypt.hashpw(password, bcrypt.gensalt())
         # Error check for empty fields
-        if password.decode('utf-8') == "" or email == "" or name == "":
+        if password.decode('utf-8') == "" or email == "" or name == "" or formcategory == "10":
             return render_template("register.html", message="Please fill in all required fields", email=email, name=name)
+        # Check gender type
+        if formcategory == "1":
+            gender = "Female"
+        else:
+            gender = "Male"
         # Error check for incorrect format - only one email required
         if(email.casefold() != "n/a" and nutritionistEmail.casefold() != "n/a") or \
                 (email.casefold() == "n/a" and nutritionistEmail.casefold() == "n/a"):
@@ -66,8 +72,8 @@ def register():
             if len(emailResponse) > 0:
                 return render_template("register.html", message="Email is already in use", email=email, name=name)
             # Insert new entry into users table
-            cur.execute("INSERT INTO users(user_role, name, email, pass) VALUES(%s, %s, %s, %s)",
-                        (user_role, name, email, password,))
+            cur.execute("INSERT INTO users(user_role, name, email, pass, gender) VALUES(%s, %s, %s, %s, %s)",
+                        (user_role, name, email, password, gender))
         mysql.connection.commit()
         cur.close()
         return render_template("register.html", message="Registration successful", email=email, name=name)
@@ -128,7 +134,7 @@ def health():
         bmi = (int(weight)*703)/(int(height)**2)
         cur = mysql.connection.cursor()
         cur.execute("INSERT INTO fitness(user_id, date, bmi, height, weight) VALUES(%s, %s, %s, %s, %s)",
-                    (session['user_id'], date.strftime("%m/%d/%y"), bmi, height, weight,))
+            (session['user_id'], date.strftime("%m/%d/%y"), bmi, height, weight,))
         mysql.connection.commit()
         cur.close()
         return render_template("health.html", message="Saved Successfully")

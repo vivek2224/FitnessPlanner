@@ -30,30 +30,31 @@
         </div>
       </div>
     </nav>
-
+    </div>
     <div class="container">
         <div style = "padding-left: 10%; padding-right: 10%; padding-top: 15px">
-            <h3><b>Health Data</b></h3><br>
             <form class="form-vertical" action="/health" method="POST" style = "padding-top: 5px">
                 <div class="form-group">
                     <label>Height:</label>
-                <input type="text" class="form-control" name="height" placeholder="inches"/>
-            </div>
+                    <input type="text" class="form-control" name="height" placeholder="inches"/>
+                </div>
                 <div class="form-group">
                     <label>Weight:</label>
-                <input type="text" class="form-control" name="weight" placeholder="lbs"/>
-                    </div>
+                    <input type="text" class="form-control" name="weight" placeholder="lbs"/>
+                 </div>
                     <div class="form-horizontal">
                         <button type="submit" class="btn btn-primary mb-2">Save</button>
                         <p id=message style = "font-size: 15px; color: red"> {{message}} </p>
                     </div>
-                <div class="form-inline">
-                    <h4><label>BMI:</label></h4><label>{{bmi}}</label>
-                    <h4><label>BMR:</label></h4><label>{{bmr}}</label>
-                </div>
             </form>
+        </div>
     </div>
-</div>
+    <div class="container" style = "padding-left: 10%; padding-right: 10%; padding-top: 15px">
+        <div class="form-horizontal">
+                    <label style="font-size: 20px">BMI: </label><td>{{bmi}}</td><br>
+                    <label style="font-size: 19px">BMR: </label><td>{{bmr}}</td>
+                </div>
+    </div>
     <!-- /.container -->
     <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>

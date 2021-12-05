@@ -43,6 +43,14 @@
               <label>Name: <b style = "color:red"> *</b></label>
               <input type="text" class="form-control" name="name" />
             </div>
+              <div class="form-group">
+                  <label>Gender:<b style = "color:red"> *</b></label>
+                  <select class="form-control" name="gendercategory">
+                    <option value="10">Select Gender</option>
+                    <option value="1">Female</option>
+                    <option value="2">Male</option>
+             </select>
+              </div>
                <div class="form-group">
                 <label>Email: <b style = "color:red"> *</b></label>
                 <input type="text" class="form-control" name="email" placeholder="Enter N/A if you are a nutritionist" />
@@ -63,6 +71,7 @@
           </form>
         </div>
         <p id="email" style = "display:none">{{email}}</p>
+        <p id="gender"style = "display:none">{{gender}}</p>
         <p id="name" style = "display:none">{{name}}</p>
         <p id="nutritionistEmail" style = "display:none">{{nutritionistEmail}}</p>
     </div>
@@ -74,6 +83,7 @@
         location.replace("/");
       }
     document.getElementsByName("email")[0].value = document.getElementById("email").innerHTML;
+    document.getElementsByName("gender")[0].value = document.getElementById("gender").innerHTML;
     document.getElementsByName("name")[0].value = document.getElementById("name").innerHTML;
     document.getElementsByName("nutritionistEmail")[0].value = document.getElementById("nutritionistEmail").innerHTML;
   </script>
