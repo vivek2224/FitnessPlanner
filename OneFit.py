@@ -1,16 +1,16 @@
-import MySQLdb
+import pymysql
 from flask import Flask, render_template, redirect, request, url_for, session
-from flask_mysqldb import MySQL
 from datetime import datetime
 
 app = Flask(__name__, template_folder='templates')
 app.secret_key = "Hello"
-app.config['MYSQL_HOST'] = 'localhost'
-app.config['MYSQL_USER'] = 'root'
-app.config['MYSQL_PASSWORD'] = 'Cmpe133!'
-app.config['MYSQL_DB'] = 'onefit'
-app.config['MYSQL_CURSORCLASS'] = 'DictCursor'
-mysql = MySQL(app)
+# app.config['MYSQL_HOST'] = '47.99.40.195'
+# app.config['MYSQL_USER'] = 'root'
+# app.config['MYSQL_PASSWORD'] = 'root'
+# app.config['MYSQL_DB'] = 'onefit'
+# app.config['MYSQL_CURSORCLASS'] = 'DictCursor'
+connect = pymysql.connect(host="47.99.40.195", user="root", password="root", port=3306,
+                          db="test")
 
 
 @app.route('/')
@@ -35,18 +35,19 @@ def register():
         # hash_password = bcrypt.hashpw(password, bcrypt.gensalt())
         # Error check for empty fields
         if password.decode('utf-8') == "" or email == "" or name == "" or formcategory == "10":
-            return render_template("register.html", message="Please fill in all required fields", email=email, name=name)
+            return render_template("register.html", message="Please fill in all required fields", email=email,
+                                   name=name)
         # Check gender type
         if formcategory == "1":
             gender = "Female"
         else:
             gender = "Male"
         # Error check for incorrect format - only one email required
-        if(email.casefold() != "n/a" and nutritionistEmail.casefold() != "n/a") or \
+        if (email.casefold() != "n/a" and nutritionistEmail.casefold() != "n/a") or \
                 (email.casefold() == "n/a" and nutritionistEmail.casefold() == "n/a"):
             return render_template("register.html", message="Please enter one email and enter N/A for the other",
                                    email=email, name=name)
-        cur = mysql.connection.cursor()
+        cur = connect.cursor()
         # If email is N/A, then the user will be registered under the nutritionist role
         if email.casefold() == "n/a":
             # Error check for incorrect email format
@@ -74,7 +75,7 @@ def register():
             # Insert new entry into users table
             cur.execute("INSERT INTO users(user_role, name, email, pass, gender) VALUES(%s, %s, %s, %s, %s)",
                         (user_role, name, email, password, gender))
-        mysql.connection.commit()
+        cur.commit()
         cur.close()
         return render_template("register.html", message="Registration successful", email=email, name=name)
 
@@ -88,7 +89,7 @@ def login():
         # Error check for empty fields
         if password.decode('utf-8') == "" or email == "":
             return render_template("login.html", message="Please fill in the fields")
-        cur = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+        cur = connect.cursor()
         # Find matching email in users table and error check for nonexistent email
         emailResult = cur.execute("SELECT * FROM users WHERE email=%s", (email,))
         if emailResult > 0:
@@ -114,28 +115,28 @@ def login():
 
 @app.route('/userHomepage')
 def userHomepage():
-    #display some daily data for user
+    # display some daily data for user
     return render_template("userHomepage.html")
 
 
 @app.route('/nutritionistHomepage')
 def nutritionistHomepage():
-    #display some daily data for nutritionist
+    # display some daily data for nutritionist
     return render_template("nutritionistHomepage.html")
 
 
 @app.route('/health', methods=["GET", "POST"])
 def health():
-    #health stuff (form info insert into databse & retrieve data)
+    # health stuff (form info insert into databse & retrieve data)
     if request.method == 'POST':
         height = request.form['height']
         weight = request.form['weight']
         date = datetime.now()
-        bmi = (int(weight)*703)/(int(height)**2)
-        cur = mysql.connection.cursor()
+        bmi = (int(weight) * 703) / (int(height) ** 2)
+        cur = connect.cursor()
         cur.execute("INSERT INTO fitness(user_id, date, bmi, height, weight) VALUES(%s, %s, %s, %s, %s)",
-            (session['user_id'], date.strftime("%m/%d/%y"), bmi, height, weight,))
-        mysql.connection.commit()
+                    (session['user_id'], date.strftime("%m/%d/%y"), bmi, height, weight,))
+        cur.commit()
         cur.close()
         return render_template("health.html", message="Saved Successfully")
     else:
@@ -144,7 +145,7 @@ def health():
 
 @app.route('/exercise')
 def exercise():
-    #exercise stuff (form info insert into databse & retrieve data)
+    # exercise stuff (form info insert into databse & retrieve data)
     return render_template("exercise.html")
 
 
@@ -160,7 +161,7 @@ def nutrition():
             # Error check for empty field
             if calorieinamount == "":
                 return render_template("nutrition.html", calorieInMessage="Please fill in this field")
-            cur = mysql.connection.cursor()
+            cur = connect.cursor()
             # Check if there is an entry in the fitness table for today's date
             cur.execute("SELECT * FROM fitness WHERE date=%s AND user_id=%s",
                         (date.strftime("%m/%d/%y"), session['user_id'],))
@@ -172,7 +173,7 @@ def nutrition():
             else:
                 cur.execute("INSERT INTO fitness(user_id, date, caloriesIntake) VALUES(%s, %s, %s)",
                             (session['user_id'], date.strftime("%m/%d/%y"), calorieinamount,))
-            mysql.connection.commit()
+            cur.commit()
             cur.close()
             calorieInMessage = "Successfully Saved"
         # Handle the water intake form
@@ -181,7 +182,7 @@ def nutrition():
             # Error check for empty field
             if wateramount == "":
                 return render_template("nutrition.html", waterMessage="Please fill in this field")
-            cur = mysql.connection.cursor()
+            cur = connect.cursor()
             # Check if there is an entry in the fitness table for today's date
             cur.execute("SELECT * FROM fitness WHERE date=%s AND user_id=%s",
                         (date.strftime("%m/%d/%y"), session['user_id'],))
@@ -193,20 +194,21 @@ def nutrition():
             else:
                 cur.execute("INSERT INTO fitness(user_id, date, waterIntake) VALUES(%s, %s, %s)",
                             (session['user_id'], date.strftime("%m/%d/%y"), wateramount,))
-            mysql.connection.commit()
+            cur.commit()
             cur.close()
             waterMessage = "Successfully Saved"
-    curr = mysql.connection.cursor()
+    cur = connect.cursor()
     # Get all the saved calorie intake data from the fitness table
-    calorieResult = curr.execute("SELECT * FROM fitness WHERE user_id=%s AND caloriesIntake IS NOT NULL",
-                                 (session['user_id'],))
+    calorieResult = cur.execute("SELECT * FROM fitness WHERE user_id=%s AND caloriesIntake IS NOT NULL",
+                                (session['user_id'],))
     if calorieResult > 0:
-        calorieIntakeData = curr.fetchall()
+        calorieIntakeData = cur.fetchall()
     # Get all the saved water intake data from the fitness table
-    waterResult = curr.execute("SELECT * from fitness WHERE user_id=%s AND waterIntake IS NOT NULL", (session['user_id'],))
+    waterResult = cur.execute("SELECT * from fitness WHERE user_id=%s AND waterIntake IS NOT NULL",
+                              (session['user_id'],))
     if waterResult > 0:
-        waterIntakeData = curr.fetchall()
-    curr.close()
+        waterIntakeData = cur.fetchall()
+    cur.close()
     return render_template("nutrition.html", calorieInMessage=calorieInMessage, waterMessage=waterMessage,
                            calorieIntakeData=calorieIntakeData, waterIntakeData=waterIntakeData)
 
@@ -230,7 +232,7 @@ def goals():
                 category = "Weight"
             if formcategory == "2":
                 category = "Net Calories"
-            cur = mysql.connection.cursor()
+            cur = connect.cursor()
             # Check if there is an entry in the goals table for today's date
             cur.execute("SELECT * FROM goals WHERE category=%s AND date=%s AND user_id=%s AND completion IS NULL",
                         (category, date.strftime("%m/%d/%y"), session['user_id'],))
@@ -242,7 +244,7 @@ def goals():
             else:
                 cur.execute("INSERT INTO goals(user_id, date, category, amount) VALUES(%s, %s, %s, %s)",
                             (session['user_id'], date.strftime("%m/%d/%y"), category, goalamount,))
-            mysql.connection.commit()
+            cur.commit()
             cur.close()
             message = "Successfully Saved"
         # Handle the remove goal form for current goals
@@ -254,18 +256,18 @@ def goals():
                 selectcategory = "Weight"
             if formselectcategory == "2":
                 selectcategory = "Net Calories"
-            curd = mysql.connection.cursor()
+            cur = connect.cursor()
             # Delete the current goal specified by the date value returned from the form
-            curd.execute("DELETE FROM goals WHERE category=%s AND date=%s AND completion IS NULL",
-                         (selectcategory, request.form['goal_delete'],))
-            mysql.connection.commit()
-            curd.close()
-    cure = mysql.connection.cursor()
+            cur.execute("DELETE FROM goals WHERE category=%s AND date=%s AND completion IS NULL",
+                        (selectcategory, request.form['goal_delete'],))
+            cur.commit()
+            cur.close()
+    cure = connect.cursor()
     ####################################################################
     # This part might have to be implemented in other methods
     # Get the saved fitness data for today
     dayRecord = cure.execute("SELECT * FROM fitness WHERE user_id=%s AND date=%s",
-                          (session['user_id'], date.strftime("%m/%d/%y"),))
+                             (session['user_id'], date.strftime("%m/%d/%y"),))
     if dayRecord > 0:
         todaysrecord = cure.fetchone()
         # Check the goals table for a weight goal with an amount that matches the weight entered for the day
@@ -281,21 +283,23 @@ def goals():
             # Check the goals table for a net calories goal with an amount that matches the net calories for the day
             gcalorie = cure.execute("SELECT * FROM goals WHERE category=%s AND amount=%s AND user_id=%s "
                                     "AND completion IS NULL", ("Net Calories",
-                                    todaysrecord['caloriesIntake']-todaysrecord['caloriesBurned'], session['user_id'],))
+                                                               todaysrecord['caloriesIntake'] - todaysrecord[
+                                                                   'caloriesBurned'], session['user_id'],))
             # If there is a match, update that net calories goal with today as the completion date
             if gcalorie > 0:
                 cure.execute("UPDATE goals SET completion=%s WHERE category=%s AND amount=%s AND user_id=%s "
                              "AND completion IS NULL", (date.strftime("%m/%d/%y"), "Net Calories",
-                             todaysrecord['caloriesIntake']-todaysrecord['caloriesBurned'], session['user_id'],))
+                                                        todaysrecord['caloriesIntake'] - todaysrecord['caloriesBurned'],
+                                                        session['user_id'],))
     ##################################################################
     # Get all the achieved goals from the goals table
     goalResult = cure.execute("SELECT * FROM goals WHERE user_id=%s AND completion IS NOT NULL", (session['user_id'],))
     if goalResult > 0:
         achievedGoals = cure.fetchall()
-    mysql.connection.commit()
+    cure.commit()
     cure.close()
     ####################
-    curc = mysql.connection.cursor()
+    curc = connect.cursor()
     # Get all the current goals from the goals table
     currentResult = curc.execute("SELECT * from goals WHERE user_id=%s AND completion IS NULL", (session['user_id'],))
     if currentResult > 0:
@@ -307,7 +311,7 @@ def goals():
         currentWeightGoals = curc.fetchall()
     # Get all the current net calories goals from the goals table
     netcaloriesResult = curc.execute("SELECT * from goals WHERE category=%s AND user_id=%s AND completion IS NULL",
-                                ("Net Calories", session['user_id'],))
+                                     ("Net Calories", session['user_id'],))
     if netcaloriesResult > 0:
         currentCalorieGoals = curc.fetchall()
     curc.close()
@@ -317,7 +321,7 @@ def goals():
 
 @app.route('/userAccount')
 def userAccount():
-    #get user account data, save revision & connection to nutritionist
+    # get user account data, save revision & connection to nutritionist
     return render_template("userAccount.html")
 
 
@@ -326,9 +330,9 @@ def clients():
     noneMessage, message = "", ""
     # Preset default values in case there is no corresponding value saved anywhere in the db
     connectedUsers, viewedUser, heightUser, weightUser, bmiUser, bmrUser, calorieinUser, wgoalUser, cgoalUser = \
-        {}, {'name': None, 'user_id':None, 'feedback': None}, {'height': None}, {'weight': None}, {'BMI': None}, \
+        {}, {'name': None, 'user_id': None, 'feedback': None}, {'height': None}, {'weight': None}, {'BMI': None}, \
         {'BMR': None}, {'caloriesIntake': None}, {'amount': None}, {'amount': None}
-    cur = mysql.connection.cursor()
+    cur = connect.cursor()
     # Find the users connected to the nutritionist in the users table
     cur.execute("SELECT * FROM users WHERE user_id=%s", (session['user_id'],))
     nutritionist = cur.fetchone()
@@ -342,7 +346,7 @@ def clients():
         # Handle the view info form for selected user
         if 'userInfo' in request.form:
             user = request.form['user']
-            curv = mysql.connection.cursor()
+            curv = connect.cursor()
             # Get the selected user from the users table
             nresult = curv.execute("SELECT * FROM users WHERE user_id=%s", (user,))
             if nresult > 0:
@@ -393,10 +397,10 @@ def clients():
                                        bmiUser=bmiUser, bmrUser=bmrUser, calorieinUser=calorieinUser,
                                        wgoalUser=wgoalUser, cgoalUser=cgoalUser)
             userRecommend = request.form['userRecommend']
-            curf = mysql.connection.cursor()
+            curf = connect.cursor()
             # Update the feedback for the selected user in the users table
             curf.execute("UPDATE users SET feedback=%s WHERE user_id=%s", (feedback, userRecommend,))
-            mysql.connection.commit()
+            connect.commit()
             curf.close()
             message = "Successfully Saved"
     return render_template("clients.html", noneMessage=noneMessage, message=message, connectedUsers=connectedUsers,
@@ -406,7 +410,7 @@ def clients():
 
 @app.route('/nutritionistAccount')
 def nutritionistAccount():
-    #get nutritionist account data, save revision
+    # get nutritionist account data, save revision
     return render_template("nutritionistAccount.html")
 
 
