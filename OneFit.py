@@ -29,12 +29,28 @@ def register():
         # Get all the values from the registration form
         name = request.form['name']
         formcategory = request.form.get('gendercategory')
+        formdate = request.form['bday']
+        bday = datetime.strptime(formdate, '%Y-%m-%d').date()
+        print(bday.year)
+        print(bday.month)
+        print(bday.day)
+        print(datetime.today().year)
+        print(datetime.today().month)
+        print(datetime.today().day)
+
+        if datetime.today().month > bday.month:
+            age = datetime.today().year - bday.year
+        elif datetime.today().month == bday.month:
+            if datetime.today().day >= bday.day:
+                age = datetime.today().year - bday.year
+        else:
+            age = datetime.today().year - bday.year - 1
         email = request.form['email']
         password = request.form['password'].encode('utf-8')
         nutritionistEmail = request.form['nutritionistEmail']
         # hash_password = bcrypt.hashpw(password, bcrypt.gensalt())
         # Error check for empty fields
-        if password.decode('utf-8') == "" or email == "" or name == "" or formcategory == "10":
+        if password.decode('utf-8') == "" or email == "" or name == "" or formcategory == "10" or formdate == "":
             return render_template("register.html", message="Please fill in all required fields", email=email, name=name)
         # Check gender type
         if formcategory == "1":
@@ -72,8 +88,8 @@ def register():
             if len(emailResponse) > 0:
                 return render_template("register.html", message="Email is already in use", email=email, name=name)
             # Insert new entry into users table
-            cur.execute("INSERT INTO users(user_role, name, email, pass, gender) VALUES(%s, %s, %s, %s, %s)",
-                        (user_role, name, email, password, gender))
+            cur.execute("INSERT INTO users(user_role, name, email, pass, gender, age) VALUES(%s, %s, %s, %s, %s, %s)",
+                        (user_role, name, email, password, gender, age))
         mysql.connection.commit()
         cur.close()
         return render_template("register.html", message="Registration successful", email=email, name=name)
