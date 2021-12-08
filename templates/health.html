@@ -50,14 +50,21 @@
         </div>
     </div>
     <div class="container" style = "padding-left: 10%; padding-right: 10%; padding-top: 15px">
-        <div class="form-horizontal">
-                    <label style="font-size: 20px">BMI: </label><td>{{bmi}}</td><br>
-                    <label style="font-size: 19px">BMR: </label><td>{{bmr}}</td>
-                </div>
+        <div style ="overflow: auto; float: left;left:0;top:0;padding: 3px">
+                    <label style="font-size: 20px">BMI: </label><td>{{userbmi}}</td><br>
+                    <label style="font-size: 19px">BMR: </label><td>{{userbmr}}</td>
+        </div>
+        <div style ="overflow: auto; float: right;right:0;top:0;padding: 3px">
+            <label style="">Age:</label><td>{{userage}}</td><br>
+            <label style="">Height:</label><td>{{userheight}}</td><br>
+            <label style="border: #333333">Current Weight:</label><td>{{userweight}}</td><br>
+        </div>
     </div>
+    <br><br>
     <!-- /.container -->
     <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 </body>
 <footer style = "background-color : cadetblue; height: 40px; position : absolute; bottom: 0; width: 100%">
          <p style="text-align: center; font-size: 20px; font-family: cursive; color: whitesmoke;">OneFit</p>
