@@ -30,6 +30,13 @@ def register():
         name = request.form['name']
         formcategory = request.form.get('gendercategory')
         formdate = request.form['bday']
+        userEmail = request.form['email']
+        password = request.form['password'].encode('utf-8')
+        nutritionistEmail = request.form['nutritionistEmail']
+        # hash_password = bcrypt.hashpw(password, bcrypt.gensalt())
+        # Error check for empty fields
+        if password.decode('utf-8') == "" or userEmail == "" or nutritionistEmail == "" or name == "" or formcategory == "10" or formdate == "":
+            return render_template("register.html", message="Please fill in all required fields", email=userEmail, name=name)
         bday = datetime.strptime(formdate, '%Y-%m-%d').date()
         print(bday.year)
         print(bday.month)
@@ -37,7 +44,7 @@ def register():
         print(datetime.today().year)
         print(datetime.today().month)
         print(datetime.today().day)
-
+        # Calculate user age
         if datetime.today().month > bday.month:
             age = datetime.today().year - bday.year
         elif datetime.today().month == bday.month:
@@ -45,62 +52,36 @@ def register():
                 age = datetime.today().year - bday.year
         else:
             age = datetime.today().year - bday.year - 1
-        email = request.form['email']
-        password = request.form['password'].encode('utf-8')
-        nutritionistEmail = request.form['nutritionistEmail']
-        # hash_password = bcrypt.hashpw(password, bcrypt.gensalt())
-        # Error check for empty fields
-
-        if password.decode('utf-8') == "" or email == "" or name == "" or formcategory == "10" or formdate == "":
-            return render_template("register.html", message="Please fill in all required fields", email=email, name=name)
-
-        if password.decode('utf-8') == "" or email == "" or name == "" or formcategory == "10":
-            return render_template("register.html", message="Please fill in all required fields", email=email,
-                                   name=name)
-
         # Check gender type
         if formcategory == "1":
             gender = "Female"
         else:
             gender = "Male"
         # Error check for incorrect format - only one email required
-        if (email.casefold() != "n/a" and nutritionistEmail.casefold() != "n/a") or \
-                (email.casefold() == "n/a" and nutritionistEmail.casefold() == "n/a"):
+        if (userEmail.casefold() != "n/a" and nutritionistEmail.casefold() != "n/a") or \
+                (userEmail.casefold() == "n/a" and nutritionistEmail.casefold() == "n/a"):
             return render_template("register.html", message="Please enter one email and enter N/A for the other",
-                                   email=email, name=name)
-        cur = mysql.connect.cursor()
+                                   email=userEmail, name=name)
+        cur = mysql.connection.cursor()
         # If email is N/A, then the user will be registered under the nutritionist role
-        if email.casefold() == "n/a":
-            # Error check for incorrect email format
-            if "@" not in nutritionistEmail:
-                return render_template("register.html", message="Incorrect email format", email=email, name=name)
-            cur.execute("SELECT * FROM users WHERE email = %s", (nutritionistEmail,))
-            nEmailResponse = cur.fetchall()
-            # Error check for an already registered email
-            if len(nEmailResponse) > 0:
-                return render_template("register.html", message="Email is already in use", email=email, name=name)
+        if userEmail.casefold() == "n/a":
             user_role = 1  # nutritionist
-            # Insert new entry into users table
-            cur.execute("INSERT INTO users(user_role, name, email, pass) VALUES(%s, %s, %s, %s)",
-                        (user_role, name, nutritionistEmail, password,))
+            email = nutritionistEmail
         # If nutritionist email is N/A, then the user will be registered under the user role
         if nutritionistEmail.casefold() == "n/a":
-            # Error check for incorrect email format
-            if "@" not in email:
-                return render_template("register.html", message="Incorrect email format", email=email, name=name)
-            cur.execute("SELECT * FROM users WHERE email = %s", (email,))
-            emailResponse = cur.fetchall()
-            # Error check for an already registered email
-            if len(emailResponse) > 0:
-                return render_template("register.html", message="Email is already in use", email=email, name=name)
-            # Insert new entry into users table
-
-            cur.execute("INSERT INTO users(user_role, name, email, pass, gender, age) VALUES(%s, %s, %s, %s, %s, %s)",
-                        (user_role, name, email, password, gender, age))
+            email = userEmail
+        # Error check for incorrect email format
+        if "@" not in email:
+            return render_template("register.html", message="Incorrect email format", email=email, name=name)
+        cur.execute("SELECT * FROM users WHERE email = %s", (email,))
+        nEmailResponse = cur.fetchall()
+        # Error check for an already registered email
+        if len(nEmailResponse) > 0:
+            return render_template("register.html", message="Email is already in use", email=email, name=name)
+        # Insert new entry into users table
+        cur.execute("INSERT INTO users(user_role, name, email, pass, gender, age) VALUES(%s, %s, %s, %s, %s, %s)",
+                    (user_role, name, email, password, gender, age,))
         mysql.connection.commit()
-        cur.execute("INSERT INTO users(user_role, name, email, pass, gender) VALUES(%s, %s, %s, %s, %s)",
-                        (user_role, name, email, password, gender))
-        cur.commit()
         cur.close()
         return render_template("register.html", message="Registration successful", email=email, name=name)
 
@@ -152,67 +133,63 @@ def nutritionistHomepage():
 
 @app.route('/health', methods=["GET", "POST"])
 def health():
-    # health stuff (form info insert into databse & retrieve data)
-    user = session['user_id']
-
+    message = ""
+    bmi, bmr, weight, height = {}, {}, {}, {}
     if request.method == 'POST':
+        # Get users registered age and gender
         cure = mysql.connection.cursor()
-        uResult = cure.execute("SELECT * FROM users where user_id=%s", (session['user_id'],))
+        cure.execute("SELECT * FROM users where user_id=%s", (session['user_id'],))
         user = cure.fetchone()
         userage = user['age']
         userGen = user['gender']
         cure.close()
-
+        # Get all the values from the health form
         height = request.form['height']
         weight = request.form['weight']
         date = datetime.now()
+        # Error check for empty fields
+        if height == "" or weight == "":
+            return render_template("health.html", message="Please fill the fields", bmi=bmi, bmr=bmr, userage=userage, weight=weight, height=height)
+        # Calculate BMI and BMR
         bmi = (int(weight) * 703) / (int(height) ** 2)
-        if userGen == 'female':
+        if userGen == 'Female':
             bmr = (4.536 * int(weight)) + (15.88 * int(height)) - (5 * int(userage)) - 161
         else:
-            bmr =  (4.536 * int(weight)) + (15.88 * int(height)) - (5 * int(userage)) + 5
+            bmr = (4.536 * int(weight)) + (15.88 * int(height)) - (5 * int(userage)) + 5
         cur = mysql.connection.cursor()
-
-        cur.execute("INSERT INTO fitness(user_id, date, bmi, height, weight) VALUES(%s, %s, %s, %s, %s)",
-                    (session['user_id'], date.strftime("%m/%d/%y"), bmi, height, weight,))
+        # Check if there is an entry in the fitness table for today's date
+        cur.execute("SELECT * FROM fitness WHERE date=%s AND user_id=%s",
+                    (date.strftime("%m/%d/%y"), session['user_id'],))
+        dayResponse = cur.fetchall()
+        # If there is already an entry for today's date in fitness table, update the health values for that entry
+        if len(dayResponse) != 0:
+            cur.execute("UPDATE fitness SET height=%s, weight=%s, bmi=%s, bmr=%s WHERE date=%s AND user_id=%s",
+                        (height, weight, bmi, bmr, date.strftime("%m/%d/%y"), session['user_id'],))
+        else:
+            cur.execute("INSERT INTO fitness(user_id, date, bmi, bmr, height, weight) VALUES(%s, %s, %s, %s, %s, %s)",
+                        (session['user_id'], date.strftime("%m/%d/%y"), bmi, bmr, height, weight,))
         mysql.connection.commit()
         cur.close()
-
-        return render_template("health.html", message="Saved Successfully", bmi=bmi, bmr=bmr, age=userage, weight=weight, height=height)
-
+        return render_template("health.html", message="Saved Successfully", bmi=bmi, bmr=bmr, userage=userage, weight=weight, height=height)
     else:
         cure = mysql.connection.cursor()
-        uResult = cure.execute("SELECT * FROM users where user_id=%s", (session['user_id'],))
+        cure.execute("SELECT * FROM users where user_id=%s", (session['user_id'],))
         user = cure.fetchone()
         userage = user['age']
         userGen = user['gender']
         cure.close()
-
         curv = mysql.connection.cursor()
-
-        # Get the most recent height of selected user from the fitness table
+        # Get the most recent heath entry of the user from the fitness table
         hresult = curv.execute("SELECT * FROM fitness WHERE user_id=%s AND height is NOT NULL "
-                               "ORDER BY date DESC LIMIT 1", (user,))
+                               "ORDER BY date DESC LIMIT 1", (session['user_id'],))
         if hresult > 0:
-            height = curv.fetchone()
-        # Get the most recent weight of selected user from the fitness table
-        wresult = curv.execute("SELECT * FROM fitness WHERE user_id=%s AND weight is NOT NULL "
-                               "ORDER BY date DESC LIMIT 1", (user,))
-        if wresult > 0:
-            weight = curv.fetchone()
-        # Get the most recent bmi of selected user from the fitness table
-        iresult = curv.execute("SELECT * FROM fitness WHERE user_id=%s AND bmi is NOT NULL "
-                               "ORDER BY date DESC LIMIT 1", (user,))
-        if iresult > 0:
-            bmi = curv.fetchone()
-        # Get the most recent bmr of selected user from the fitness table
-        rresult = curv.execute("SELECT * FROM fitness WHERE user_id=%s AND bmr is NOT NULL "
-                               "ORDER BY date DESC LIMIT 1", (user,))
-        if rresult > 0:
-            bmr = curv.fetchone()
-
+            health = curv.fetchone()
+            bmi = health['BMI']
+            bmr = health['BMR']
+            weight = health['weight']
+            height = health['height']
         curv.close()
-        return render_template("health.html", message="", bmi=userbmi, bmr=userbmr, age=userage, weight=userweight, height=userheight)
+        return render_template("health.html", message="", bmi=bmi, bmr=bmr, userage=userage, weight=weight, height=height)
 
 
 @app.route('/exercise')
