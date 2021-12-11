@@ -38,13 +38,9 @@ def register():
         if password.decode('utf-8') == "" or userEmail == "" or nutritionistEmail == "" or name == "" or formcategory == "10" or formdate == "":
             return render_template("register.html", message="Please fill in all required fields", email=userEmail, name=name)
         bday = datetime.strptime(formdate, '%Y-%m-%d').date()
-        print(bday.year)
-        print(bday.month)
-        print(bday.day)
-        print(datetime.today().year)
-        print(datetime.today().month)
-        print(datetime.today().day)
         # Calculate user age
+        if bday > datetime.today().date():
+            return render_template("register.html", message="Invalid Birth Date", email=userEmail, name=name)
         if datetime.today().month > bday.month:
             age = datetime.today().year - bday.year
         elif datetime.today().month == bday.month:
@@ -121,20 +117,18 @@ def login():
 
 @app.route('/userHomepage')
 def userHomepage():
-    # display some daily data for user
     return render_template("userHomepage.html")
 
 
 @app.route('/nutritionistHomepage')
 def nutritionistHomepage():
-    # display some daily data for nutritionist
     return render_template("nutritionistHomepage.html")
 
 
 @app.route('/health', methods=["GET", "POST"])
 def health():
     message = ""
-    bmi, bmr, weight, height = {}, {}, {}, {}
+    bmi, bmr, weight, height = None, None, None, None
     if request.method == 'POST':
         # Get users registered age and gender
         cure = mysql.connection.cursor()
@@ -263,7 +257,7 @@ def exercise():
                 cur.execute("UPDATE fitness SET caloriesBurned=%s, burnGoalAmount=%s WHERE date=%s AND user_id=%s",
                             (calorieburn, goalamount, date.strftime("%m/%d/%y"), session['user_id'],))
             else:
-                cur.execute("UPDATE fitness SET caloriesBurned=%s, burnGoalAmount=%s WHERE AND date=%s AND user_id=%s",
+                cur.execute("UPDATE fitness SET caloriesBurned=%s, burnGoalAmount=%s WHERE date=%s AND user_id=%s",
                             (calorieburn, goalamount, date.strftime("%m/%d/%y"), session['user_id'],))
         else:
             cur.execute("INSERT INTO fitness(user_id, date, caloriesBurned, burnGoalAmount) VALUES(%s, %s, %s, %s)",
@@ -333,7 +327,7 @@ def nutrition():
             else:
                 cur.execute("INSERT INTO fitness(user_id, date, caloriesIntake) VALUES(%s, %s, %s)",
                             (session['user_id'], date.strftime("%m/%d/%y"), calorieinamount,))
-            cur.commit()
+            mysql.connection.commit()
             cur.close()
             calorieInMessage = "Successfully Saved"
         # Handle the water intake form
@@ -354,7 +348,7 @@ def nutrition():
             else:
                 cur.execute("INSERT INTO fitness(user_id, date, waterIntake) VALUES(%s, %s, %s)",
                             (session['user_id'], date.strftime("%m/%d/%y"), wateramount,))
-            cur.commit()
+            mysql.connection.commit()
             cur.close()
             waterMessage = "Successfully Saved"
     cur = mysql.connection.cursor()
@@ -423,8 +417,6 @@ def goals():
             mysql.connection.commit()
             curd.close()
     cure = mysql.connection.cursor()
-    ####################################################################
-    # This part might have to be implemented in other methods
     # Get the saved fitness data for today
     dayRecord = cure.execute("SELECT * FROM fitness WHERE user_id=%s AND date=%s",
                              (session['user_id'], date.strftime("%m/%d/%y"),))
@@ -451,7 +443,6 @@ def goals():
                              "AND completion IS NULL", (date.strftime("%m/%d/%y"), "Net Calories",
                                                         todaysrecord['caloriesIntake'] - todaysrecord['caloriesBurned'],
                                                         session['user_id'],))
-    ##################################################################
     # Get all the achieved goals from the goals table
     goalResult = cure.execute("SELECT * FROM goals WHERE user_id=%s AND completion IS NOT NULL", (session['user_id'],))
     if goalResult > 0:
@@ -481,39 +472,89 @@ def goals():
 
 @app.route('/userAccount', methods=["GET", "POST"])
 def userAccount():
-
-    #get user account data, save revision & connection to nutritionist
-    category = ""
     message = ""
-    print("in account")
+    usernutritionist, nutritionists = {'name': None}, {}
     if request.method == 'POST':
-        print("here")
-        ncategory = request.form.get('infocategory')
-        infoUpdate = request.form['updatedInfo']
-        print(infoUpdate)
-        cur = mysql.connection.cursor()
-        if ncategory == "1" and len(infoUpdate) > 0:
-            category = "Email"
-            cur.execute(
-                "UPDATE users SET email=%s WHERE user_id=%s",
-                (infoUpdate, (session['user_id'],)))
-        if ncategory == "2" and len(infoUpdate) > 0:
-            category = "Password"
-            cur.execute(
-                "UPDATE users SET pass=%s WHERE user_id=%s",
-                (infoUpdate, (session['user_id'],)))
-        if ncategory == "3" and len(infoUpdate) > 0:
-            category = "Nutritionist Email"
-            cur.execute(
-                "UPDATE users SET nutritionist=%s WHERE user_id=%s",
-                (infoUpdate, (session['user_id'],)))
-        mysql.connection.commit()
-        cur.close()
-        message = "Successfully Saved"
-    else:
-        print("not a post")
-    return render_template("userAccount.html", message=message)
-
+        # Handle the update user information form
+        if 'updateInfo' in request.form:
+            # Get the values of the change information form
+            ncategory = request.form.get('infocategory')
+            infoUpdate = request.form['updatedInfo']
+            cur = mysql.connection.cursor()
+            # Get the current user
+            cur.execute("SELECT * FROM users where user_id=%s", (session['user_id'],))
+            user = cur.fetchone()
+            # Check if there are missing fields
+            if ncategory == "10" or len(infoUpdate) == 0:
+                message = "Fields not filled out"
+            # Check if the category is email and update user email in users table
+            if ncategory == "1" and len(infoUpdate) > 0:
+                # Error check for incorrectly formatted email
+                if "@" not in infoUpdate:
+                    message = "Incorrect email format"
+                else:
+                    cur.execute("SELECT * FROM users WHERE email = %s", (infoUpdate,))
+                    nEmailResponse = cur.fetchall()
+                    # Error check for an already registered email
+                    if len(nEmailResponse) > 0:
+                        message = "Email is already in use"
+                    else:
+                        cur.execute("UPDATE users SET email=%s WHERE user_id=%s", (infoUpdate, (session['user_id'],)))
+                        message = "Successfully Saved"
+            # Check if the category is password and update user password in users table
+            if ncategory == "2" and len(infoUpdate) > 0:
+                # Error check for same password
+                if user['pass'] == infoUpdate:
+                    message = "Same Password"
+                else:
+                    cur.execute("UPDATE users SET pass=%s WHERE user_id=%s", (infoUpdate, (session['user_id'],)))
+                    message = "Successfully Saved"
+            # Check if the category is nutritionist email and update user's nutritionist in users table
+            if ncategory == "3" and len(infoUpdate) > 0:
+                # Check if the nutritionist requested exists
+                resultN = cur.execute("SELECT * FROM users where user_role=%s AND email=%s", (1, infoUpdate))
+                foundnutritionist = cur.fetchone()
+                if resultN == 0:
+                    message = "Nutritionist does not exist"
+                else:
+                    # Error check for same nutritionist email
+                    if user['nutritionist'] == foundnutritionist['user_id']:
+                        message = "Same Nutritionist"
+                    else:
+                        cur.execute("UPDATE users SET nutritionist=%s WHERE user_id=%s", (foundnutritionist['user_id'], (session['user_id'],)))
+                        message = "Successfully Saved"
+            mysql.connection.commit()
+            cur.close()
+        # Handle the remove nutritionist form
+        if 'removeNutritionist' in request.form:
+            formcategory = request.form.get('category')
+            curd = mysql.connection.cursor()
+            curd.execute("SELECT * FROM users where user_id=%s", (session['user_id'],))
+            user = curd.fetchone()
+            # Item to remove - 1 is nutritionist
+            if formcategory == "1":
+                # Update the user info to have no nutritionist in the users table
+                curd.execute("UPDATE users SET nutritionist=%s WHERE nutritionist=%s", (None, user['nutritionist'],))
+            # Item to remove - 2 is nutritionist feedback
+            if formcategory == "2":
+                # Update the user info to have no nutritionist feedback in the users table
+                curd.execute("UPDATE users SET feedback=%s WHERE feedback=%s",
+                             (None, user['feedback'],))
+            mysql.connection.commit()
+            curd.close()
+    cure = mysql.connection.cursor()
+    cure.execute("SELECT * FROM users where user_id=%s", (session['user_id'],))
+    user = cure.fetchone()
+    # Get the user's nutritionist information
+    if user['nutritionist'] is not None:
+        cure.execute("SELECT * FROM users where user_id=%s", (user['nutritionist'],))
+        usernutritionist = cure.fetchone()
+    # Get the available registered nutritionists the user can connect with
+    nresult = cure.execute("SELECT * FROM users where user_role=%s", (1,))
+    if nresult > 0:
+        nutritionists = cure.fetchall()
+    cure.close()
+    return render_template("userAccount.html", message=message, user=user, usernutritionist=usernutritionist, nutritionists=nutritionists)
 
 
 @app.route('/clients', methods=["GET", "POST"])
@@ -525,9 +566,7 @@ def clients():
         {'BMR': None}, {'caloriesIntake': None}, {'amount': None}, {'amount': None}
     cur = mysql.connection.cursor()
     # Find the users connected to the nutritionist in the users table
-    cur.execute("SELECT * FROM users WHERE user_id=%s", (session['user_id'],))
-    nutritionist = cur.fetchone()
-    connectResult = cur.execute("SELECT * FROM users WHERE nutritionist=%s", (nutritionist['email'],))
+    connectResult = cur.execute("SELECT * FROM users WHERE nutritionist=%s", (session['user_id'],))
     if connectResult > 0:
         connectedUsers = cur.fetchall()
     else:
@@ -601,32 +640,48 @@ def clients():
 
 @app.route('/nutritionistAccount', methods=["GET", "POST"])
 def nutritionistAccount():
-    #get nutritionist account data, save revision
-    category = ""
     message = ""
-    print("in account")
+    user = {}
     if request.method == 'POST':
-        print("here")
+        # Get the values of the change information form
         ncategory = request.form.get('infocategorynutrition')
         infoUpdateN = request.form['updatedInfoNutrition']
-        print(infoUpdateN)
         cur = mysql.connection.cursor()
+        # Get the current user
+        cur.execute("SELECT * FROM users where user_id=%s", (session['user_id'],))
+        user = cur.fetchone()
+        # Check if there are missing fields
+        if ncategory == "10" or len(infoUpdateN) == 0:
+            message = "Fields not filled out"
+        # Check if the category is email and update users email in users table
         if ncategory == "1" and len(infoUpdateN) > 0:
-            category = "Email"
-            cur.execute(
-                "UPDATE users SET email=%s WHERE user_id=%s",
-                (infoUpdateN, (session['user_id'],)))
+            # Error check for incorrectly formatted email
+            if "@" not in infoUpdateN:
+                message = "Incorrect email format"
+            else:
+                cur.execute("SELECT * FROM users WHERE email = %s", (infoUpdateN,))
+                nEmailResponse = cur.fetchall()
+                # Error check for an already registered email
+                if len(nEmailResponse) > 0:
+                    message = "Email is already in use"
+                else:
+                    cur.execute("UPDATE users SET email=%s WHERE user_id=%s", (infoUpdateN, (session['user_id'],)))
+                    message = "Successfully Saved"
+        # Check if the category is password and update user password in users table
         if ncategory == "2" and len(infoUpdateN) > 0:
-            category = "Password"
-            cur.execute(
-                "UPDATE users SET pass=%s WHERE user_id=%s",
-                (infoUpdateN, (session['user_id'],)))
+            # Error check for same password
+            if user['pass'] == infoUpdateN:
+                message = "Same Password"
+            else:
+                cur.execute("UPDATE users SET pass=%s WHERE user_id=%s", (infoUpdateN, (session['user_id'],)))
+                message = "Successfully Saved"
         mysql.connection.commit()
         cur.close()
-        message = "Successfully Saved"
-    else:
-        print("not a post")
-    return render_template("nutritionistAccount.html", message=message)
+    cure = mysql.connection.cursor()
+    cure.execute("SELECT * FROM users where user_id=%s", (session['user_id'],))
+    user = cure.fetchone()
+    cure.close()
+    return render_template("nutritionistAccount.html", message=message, user=user)
 
 
 @app.route('/logout')

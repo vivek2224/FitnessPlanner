@@ -12,7 +12,7 @@
       href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
     />
 </head>
-<body style =  "position: relative; min-height: 100vh; background: linear-gradient(to right, #A3F6D8, #E3F6F2);">
+<body style =  "position: relative; min-height: 100vh; background: linear-gradient(to right, #A3D8F6, #E3F5F6);">
     <nav class="navbar navbar-inverse" style = "margin-bottom:0px;">
       <div class="container">
         <div class="navbar-header">
@@ -44,11 +44,27 @@
            <button type="submit" class="btn btn-primary mb-2">Save</button>
            <p id = "message" style = "font-size: 15px; color: red"> {{message}} </p>
           </form></br>
+        <h3><b>Account Information</b></h3>
+          <table style="width:50%">
+           <tr>
+            <td><b>Name</b></td>
+            <td>{{user.name}}</td>
+           </tr>
+           <tr>
+            <td><b>Email:</b></td>
+            <td>{{user.email}}</td>
+           </tr>
+          </table></br>
       </div>
     </div>
-
-    <footer style = "background-color : #101010; height: 40px; position : absolute; bottom: 0; width: 100%">
-     <p style="text-align: center; font-size: 20px; color: gray;">OneFit</p>
-    </footer>
-</body>
+    <script>
+      // Prevent form resubmission
+      if (history.replaceState) {
+        history.replaceState(null, null, location.href);
+      }
+    </script>
+  </body>
+  <footer style = "background-color : #101010; height: 40px; position : fixed; bottom: 0; width: 100%">
+    <p style = "text-align: center; font-size: 20px; color: gray;">OneFit</p>
+  </footer>
 </html>

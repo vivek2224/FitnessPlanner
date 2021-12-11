@@ -12,7 +12,7 @@
       href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
     />
 </head>
-<body style =  "position: relative; min-height: 100vh; background: linear-gradient(to right, #A3F6D8, #E3F6F2);">
+<body style =  "position: relative; min-height: 100vh; background: linear-gradient(to right, #A3D8F6, #E3F5F6);">
     <nav class="navbar navbar-inverse" style = "margin-bottom:0px;">
       <div class="container">
         <div class="navbar-header">
@@ -45,91 +45,63 @@
            <div class="form-group mx-sm-3 mb-2">
              <input type="text" class="form-control" name="updatedInfo" placeholder="Enter email/password" />
            </div>
-           <button type="submit" class="btn btn-primary mb-2">Save</button>
+           <button type="submit" class="btn btn-primary mb-2" name="updateInfo">Save</button>
            <p id = "message" style = "font-size: 15px; color: red"> {{message}} </p>
           </form></br>
-        <h3><b>Current Information</b></h3>
-         <form class="form-inline" action="/userAccount" method="POST" style = "padding-top: 5px">
-           <div class="form-group mb-2">
-             <select class="form-control"; name="selectcategory"; id="category">
-                <option value="100">Choose Display Option</option>
-                <option value="1">Current Email</option>
-                <option value="2">Current Nutritionist</option>
-             </select>
-           </div>
-         </form></br>
-         <div id="1" class="hide">
-          <p><b>Current Email:</b></p>
-          <table style="width:45%">
-            {% for weights in currentWeightGoals %}
-            <tr>
-              <td>Created: {{weights.date}}</td>
-              <td>{{weights.amount}}</td>
-              <td>
-                <form action="/delete_goal" method="POST" style = "padding-top: 5px">
+        <h3><b>Account Information</b></h3>
+          <table style="width:60%">
+           <tr>
+            <td><b>Name</b></td>
+            <td colspan="2">{{user.name}}</td>
+           </tr>
+           <tr>
+            <td><b>Email:</b></td>
+            <td colspan="2">{{user.email}}</td>
+           </tr>
+           <tr>
+            <td><b>Nutritionist:</b></td>
+            <td>{{usernutritionist.name}}</td>
+            <td>{{usernutritionist.email}}</td>
+            <td>
+                <form action="/userAccount" method="POST" style = "padding-top: 5px">
                    <input type="hidden" name="category" value="1">
-                   <input type="hidden" value="{{weights.date}}" name="goal_delete"/>
-                   <button type="submit" class="btn btn-primary btn-sm">Remove</button>
+                   <button type="submit" class="btn btn-primary btn-sm" name="removeNutritionist">Remove</button>
                 </form>
-              </td>
-            </tr>
-            {% endfor %}
-          </table></br>
-         </div>
-         <div id="2" class="hide">
-          <p><b>Net Calories Goals:</b></p>
-          <table style="width:45%">
-            {% for netcalories in currentCalorieGoals %}
-            <tr>
-              <td>Created: {{netcalories.date}}</td>
-              <td>{{netcalories.amount}}</td>
-              <td>
-                <form action="/delete_goal" method="POST" style = "padding-top: 5px">
+            </td>
+           </tr>
+           <tr>
+            <td><b>Nutritionist Feedback:</b></td>
+            <td colspan="2">{{user.feedback}}</td>
+            <td>
+                <form action="/userAccount" method="POST" style = "padding-top: 5px">
                    <input type="hidden" name="category" value="2">
-                   <input type="hidden" value="{{netcalories.date}}" name="goal_delete"/>
-                   <button type="submit" class="btn btn-primary btn-sm">Remove</button>
+                   <button type="submit" class="btn btn-primary btn-sm" name="removeNutritionist">Remove</button>
                 </form>
-              </td>
-            </tr>
-            {% endfor %}
+            </td>
+           </tr>
           </table></br>
-         </div>
-        <h3><b>Achieved Goals</b></h3>
-         <table style="width:80%">
-          {% for agoals in achievedGoals %}
-          <tr>
-            <td> Created: {{agoals.date}}</td>
-            <td>{{agoals.category}}</td>
-            <td>{{agoals.amount}}</td>
-            <td>Completed: {{agoals.completion}}</td>
-          </tr>
-          {% endfor %}
-         </table></br>
+        <h3><b>Available Nutritionists</b></h3>
+          <table style="width:45%">
+           {% for nutritionist in nutritionists %}
+           <tr>
+            <td><b>{{nutritionist.name}}</b></td>
+            <td >{{nutritionist.email}}</td>
+           </tr>
+           {% endfor %}
+          </table></br>
       </div>
     </div>
-    <!-- /.container -->
     <script>
+      // Prevent form resubmission
       if (history.replaceState) {
-        history.replaceState(null, null, location.href); //prevent form resubmission
+        history.replaceState(null, null, location.href);
       }
-      document.getElementById('category').addEventListener('change',
-      function () {
-        'use strict';
-        var vis = document.querySelector('.vis'),
-        category = document.getElementById(this.value);
-        if (vis !== null) {
-          vis.className = 'hide';
-        }
-        if (category !== null) {
-          category.className = 'vis';
-        }
-      });
     </script>
     <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
   </body>
   <footer style = "background-color : #101010; height: 40px; position : fixed; bottom: 0; width: 100%">
-    <p style="text-align: center; font-size: 20px; color: gray;">OneFit</p>
+    <p style = "text-align: center; font-size: 20px; color: gray;">OneFit</p>
   </footer>
 </body>
 </html>
