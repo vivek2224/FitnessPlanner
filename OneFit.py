@@ -157,6 +157,9 @@ def health():
             bmr = 655 + (4.35 * int(weight)) + (4.7 * int(height)) - (6.8 * int(userage)) - 161
         else:
             bmr = 66 + (6.23 * int(weight)) + (12.7 * int(height)) - (5 * int(userage)) + 5
+
+        bmi = round(bmi, 1)
+        bmr = round(bmr, 2)
         cur = mysql.connection.cursor()
         # Check if there is an entry in the fitness table for today's date
         cur.execute("SELECT * FROM fitness WHERE date=%s AND user_id=%s",
