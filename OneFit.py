@@ -7,7 +7,7 @@ app = Flask(__name__, template_folder='templates')
 app.secret_key = "Hello"
 app.config['MYSQL_HOST'] = 'localhost'
 app.config['MYSQL_USER'] = 'root'
-app.config['MYSQL_PASSWORD'] = 'Cmpe133!'
+app.config['MYSQL_PASSWORD'] = 'rootpassword'
 app.config['MYSQL_DB'] = 'onefit'
 app.config['MYSQL_CURSORCLASS'] = 'DictCursor'
 mysql = MySQL(app)
@@ -331,10 +331,39 @@ def goals():
                            currentWeightGoals=currentWeightGoals, currentCalorieGoals=currentCalorieGoals)
 
 
-@app.route('/userAccount')
+@app.route('/userAccount', methods=["GET", "POST"])
 def userAccount():
     #get user account data, save revision & connection to nutritionist
-    return render_template("userAccount.html")
+    category = ""
+    message = ""
+    print("in account")
+    if request.method == 'POST':
+        print("here")
+        ncategory = request.form.get('infocategory')
+        infoUpdate = request.form['updatedInfo']
+        print(infoUpdate)
+        cur = mysql.connection.cursor()
+        if ncategory == "1" and len(infoUpdate) > 0:
+            category = "Email"
+            cur.execute(
+                "UPDATE users SET email=%s WHERE user_id=%s",
+                (infoUpdate, (session['user_id'],)))
+        if ncategory == "2" and len(infoUpdate) > 0:
+            category = "Password"
+            cur.execute(
+                "UPDATE users SET pass=%s WHERE user_id=%s",
+                (infoUpdate, (session['user_id'],)))
+        if ncategory == "3" and len(infoUpdate) > 0:
+            category = "Nutritionist Email"
+            cur.execute(
+                "UPDATE users SET nutritionist=%s WHERE user_id=%s",
+                (infoUpdate, (session['user_id'],)))
+        mysql.connection.commit()
+        cur.close()
+        message = "Successfully Saved"
+    else:
+        print("not a post")
+    return render_template("userAccount.html", message=message)
 
 
 @app.route('/clients', methods=["GET", "POST"])
@@ -420,10 +449,34 @@ def clients():
                            bmrUser=bmrUser, calorieinUser=calorieinUser, wgoalUser=wgoalUser, cgoalUser=cgoalUser)
 
 
-@app.route('/nutritionistAccount')
+@app.route('/nutritionistAccount', methods=["GET", "POST"])
 def nutritionistAccount():
     #get nutritionist account data, save revision
-    return render_template("nutritionistAccount.html")
+    category = ""
+    message = ""
+    print("in account")
+    if request.method == 'POST':
+        print("here")
+        ncategory = request.form.get('infocategorynutrition')
+        infoUpdateN = request.form['updatedInfoNutrition']
+        print(infoUpdateN)
+        cur = mysql.connection.cursor()
+        if ncategory == "1" and len(infoUpdateN) > 0:
+            category = "Email"
+            cur.execute(
+                "UPDATE users SET email=%s WHERE user_id=%s",
+                (infoUpdateN, (session['user_id'],)))
+        if ncategory == "2" and len(infoUpdateN) > 0:
+            category = "Password"
+            cur.execute(
+                "UPDATE users SET pass=%s WHERE user_id=%s",
+                (infoUpdateN, (session['user_id'],)))
+        mysql.connection.commit()
+        cur.close()
+        message = "Successfully Saved"
+    else:
+        print("not a post")
+    return render_template("nutritionistAccount.html", message=message)
 
 
 @app.route('/logout')
