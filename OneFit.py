@@ -1,5 +1,5 @@
 import MySQLdb
-from flask import Flask, render_template, redirect, request, url_for, session
+from flask import Flask, render_template, redirect, flash, request, url_for, session
 from flask_mysqldb import MySQL
 from datetime import datetime
 
@@ -196,10 +196,117 @@ def health():
         return render_template("health.html", message="", bmi=bmi, bmr=bmr, userage=userage, weight=weight, height=height)
 
 
-@app.route('/exercise')
+@app.route('/exercise',  methods=["GET", "POST"])
 def exercise():
-    # exercise stuff (form info insert into databse & retrieve data)
-    return render_template("exercise.html")
+    category = ""
+    date = datetime.now()
+    calorieBurn, calorieburnGoal, mileRecord, weightliftRecord, cardioRecord = 0, 0, {}, {}, {}
+    curv = mysql.connection.cursor()
+    # Check if there is an entry in the exercise table for today's date
+    result = curv.execute("SELECT * FROM exercise WHERE date=%s AND user_id=%s",
+                                     (date.strftime("%m/%d/%y"), session['user_id'],))
+    # If there is no entry, set today's workout categories to default 0
+    if result == 0:
+        curv.execute("INSERT INTO exercise(user_id, date, category, exerciseAmount) "
+                     "VALUES(%s, %s, %s, %s)", (session['user_id'], date.strftime("%m/%d/%y"), "miles run", 0,))
+        curv.execute("INSERT INTO exercise(user_id, date, category, exerciseAmount) "
+                     "VALUES(%s, %s, %s, %s)", (session['user_id'], date.strftime("%m/%d/%y"), "weight lifted", 0,))
+        curv.execute("INSERT INTO exercise(user_id, date, category, exerciseAmount) "
+                     "VALUES(%s, %s, %s, %s)", (session['user_id'], date.strftime("%m/%d/%y"), "cardio", 0,))
+        mysql.connection.commit()
+    curv.close()
+    # Handle exercise form
+    if request.method == 'POST':
+        # Get values of the form
+        exerciseamount = request.form['amount']
+        calorieburn = request.form['calorieburn']
+        goalamount = request.form['calorieburngoal']
+        formcategory = request.form.get('exercisecategory')
+        # The user does not have to enter the goal caloric burn amount if it already exists for the day
+        if goalamount == "":
+            cur = mysql.connection.cursor()
+            result = cur.execute("SELECT * FROM fitness WHERE user_id=%s AND burnGoalAmount IS NOT NULL "
+                                 "ORDER BY date DESC LIMIT 1", (session['user_id'],))
+            if result > 0:
+                recent = cur.fetchone()
+                goalamount = recent['burnGoalAmount']
+            else:
+                flash('calorie burn goal not inputted')
+                return redirect(url_for('exercise'))
+        # Error check for empty select, amount, and caloric burn fields
+        if formcategory == "10":
+            flash('no selected exercise')
+            return redirect(url_for('exercise'))
+        if exerciseamount == "":
+            flash('exercise amount not inputted')
+            return redirect(url_for('exercise'))
+        if calorieburn == "":
+            flash('calories burned not inputted')
+            return redirect(url_for('exercise'))
+        # Determine the exercise category from the value of the selected dropdown item
+        if formcategory == "1":
+            category = "miles run"
+        if formcategory == "2":
+            category = "weight lifted"
+        if formcategory == "3":
+            category = "cardio"
+        cur = mysql.connection.cursor()
+        # Check if there is an entry in the fitness table for today's date
+        dayresult = cur.execute("SELECT * FROM fitness WHERE date=%s AND user_id=%s",
+                                (date.strftime("%m/%d/%y"), session['user_id'],))
+        # If there is already an entry for today's date, update the calorie data for that entry
+        if dayresult > 0:
+            dayResponse = cur.fetchone()
+            # If there is an existing calorie burn value, add the inputted calories to the old value
+            if dayResponse['caloriesBurned'] is not None:
+                calorieburn = int(calorieburn) + dayResponse['caloriesBurned']
+                cur.execute("UPDATE fitness SET caloriesBurned=%s, burnGoalAmount=%s WHERE date=%s AND user_id=%s",
+                            (calorieburn, goalamount, date.strftime("%m/%d/%y"), session['user_id'],))
+            else:
+                cur.execute("UPDATE fitness SET caloriesBurned=%s, burnGoalAmount=%s WHERE AND date=%s AND user_id=%s",
+                            (calorieburn, goalamount, date.strftime("%m/%d/%y"), session['user_id'],))
+        else:
+            cur.execute("INSERT INTO fitness(user_id, date, caloriesBurned, burnGoalAmount) VALUES(%s, %s, %s, %s)",
+                        (session['user_id'], date.strftime("%m/%d/%y"), calorieburn, goalamount,))
+        mysql.connection.commit()
+        cur.close()
+        ####################
+        cure = mysql.connection.cursor()
+        # Update the exercise category and amount data for the day in the exercise table
+        cure.execute("SELECT * FROM exercise WHERE category=%s AND date=%s AND user_id=%s",
+                     (category, date.strftime("%m/%d/%y"), session['user_id'],))
+        dayexerciseResponse = cure.fetchone()
+        exerciseamount = int(exerciseamount) + dayexerciseResponse['exerciseAmount']
+        cure.execute("UPDATE exercise SET exerciseAmount=%s WHERE category=%s AND date=%s AND user_id=%s",
+                     (exerciseamount, category, date.strftime("%m/%d/%y"), session['user_id'],))
+        mysql.connection.commit()
+        cure.close()
+    curc = mysql.connection.cursor()
+    # Get the most recent exercise calorie burn and goal input from the fitness table
+    exerciseresult = curc.execute("SELECT * FROM fitness WHERE user_id=%s AND caloriesBurned IS NOT NULL "
+                                  "AND burnGoalAmount IS NOT NULL ORDER BY date DESC LIMIT 1", (session['user_id'],))
+    if exerciseresult > 0:
+        recentexercise = curc.fetchone()
+        calorieBurn = recentexercise['caloriesBurned']
+        calorieburnGoal = recentexercise['burnGoalAmount']
+    # Get all the miles run data from the exercise table
+    mileResult = curc.execute("SELECT * from exercise WHERE category=%s AND user_id=%s",
+                              ("miles run", session['user_id'],))
+    if mileResult > 0:
+        mileRecord = curc.fetchall()
+    # Get all the weightlifting data from the exercise table
+    weightResult = curc.execute("SELECT * from exercise WHERE category=%s AND user_id=%s",
+                                ("weight lifted", session['user_id'],))
+    if weightResult > 0:
+        weightliftRecord = curc.fetchall()
+    # Get all the cardio data from the exercise table
+    cardioResult = curc.execute("SELECT * from exercise WHERE category=%s AND user_id=%s",
+                                ("cardio", session['user_id'],))
+    if cardioResult > 0:
+        cardioRecord = curc.fetchall()
+    curc.close()
+    return render_template("exercise.html", calorieBurn=calorieBurn, calorieburnGoal=calorieburnGoal,
+                           mileRecord=mileRecord, weightliftRecord=weightliftRecord, cardioRecord=cardioRecord)
 
 
 @app.route('/nutrition', methods=["GET", "POST"])
