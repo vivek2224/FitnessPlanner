@@ -13,6 +13,7 @@
     />
 </head>
 <body style =  "position: relative; min-height: 100vh; background: linear-gradient(to right, #A3D8F6, #E3F5F6);">
+    <!--user nav bar at the top of the page-->
     <nav class="navbar navbar-inverse" style = "margin-bottom:0px;">
       <div class="container">
         <div class="navbar-header">
@@ -32,6 +33,7 @@
     </nav>
         <div class="container">
       <div style = "padding-left: 10%; padding-right: 10%; padding-top: 15px">
+        <!--Form to update/set account information (email, password, nutritionist)-->
         <h3> <b>Update/Set Account Information</b></h3>
           <form class="form-inline" action="/userAccount" method="POST" style = "padding-top: 5px">
            <div class="form-group mb-2">
@@ -48,6 +50,7 @@
            <button type="submit" class="btn btn-primary mb-2" name="updateInfo">Save</button>
            <p id = "message" style = "font-size: 15px; color: red"> {{message}} </p>
           </form></br>
+        <!--Table for showing account information with option to remove nutritionist items-->
         <h3><b>Account Information</b></h3>
           <table style="width:60%">
            <tr>
@@ -80,6 +83,7 @@
             </td>
            </tr>
           </table></br>
+        <!--Table for showing available registered onefit nutritionists-->
         <h3><b>Available Nutritionists</b></h3>
           <table style="width:45%">
            {% for nutritionist in nutritionists %}

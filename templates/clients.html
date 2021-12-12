@@ -64,22 +64,22 @@
             </tr>
             <tr>
              <td><b>Height:</b></td>
-             <td>{{heightUser.height}}</td>
+             <td>{{healthUser.height}}</td>
              <td>inches</td>
             </tr>
             <tr>
              <td><b>Weight:</b></td>
-             <td>{{weightUser.weight}}</td>
+             <td>{{healthUser.weight}}</td>
              <td>lbs</td>
             </tr>
             <tr>
              <td><b>BMI:</b></td>
-             <td>{{bmiUser.BMI}}</td>
+             <td>{{healthUser.BMI}}</td>
              <td id="bmidesc"></td>
             </tr>
             <tr>
              <td><b>BMR:</b></td>
-             <td>{{bmrUser.BMR}}</td>
+             <td>{{healthUser.BMR}}</td>
              <td>calories/day</td>
             </tr>
             <tr>
@@ -103,6 +103,7 @@
             </tr>
             <tr>
              <td colspan="3">
+               <!--Form to provide feedback-->
                <form action="/clients" method="POST" style = "padding-top: 5px">
                  <div class="form-group">
                    <label>Provide Feedback:</label>
@@ -128,7 +129,7 @@
       }
 
       // Find out the BMI range of the user and display it in the corresponding row-column
-      var bmi = {{bmiUser.BMI}};
+      var bmi = {{healthUser.BMI}};
       var bmidesc = document.getElementById("bmidesc");
       if (bmi < 18.5) {
         bmidesc.innerText = "Underweight";

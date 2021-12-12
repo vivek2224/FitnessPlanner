@@ -21,6 +21,7 @@
     </style>
   </head>
   <body style = "position: relative; min-height: 122vh; background: linear-gradient(#D9E5F2, #AAF3EC) ">
+    <!--nav bar at the top of the page for going back to front page-->
     <nav class="navbar navbar-inverse" style = "margin-bottom:0px;">
       <div class="container">
         <div class="navbar-header">
@@ -33,7 +34,7 @@
         </div>
       </div>
     </nav>
-
+    <!--Form for user register-->
     <div class="container" style = "position: absolute; margin-left: 30%; margin-right: 30%; padding: 0px; background-color: white; width:40%; height: 90%;">
         <div style = "padding-left: 10%; padding-right: 10%; padding-top: 15px">
          <h3> <b>Register</b></h3>
@@ -78,7 +79,6 @@
         <p id="name" style = "display:none">{{name}}</p>
         <p id="nutritionistEmail" style = "display:none">{{nutritionistEmail}}</p>
     </div>
-    <!-- /.container -->
     <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
   <script>
@@ -86,9 +86,12 @@
       if (history.replaceState) {
         history.replaceState(null, null, location.href);
       }
+
+      // Handle cancel button
       function redirect(){
         location.replace("/");
       }
+
     document.getElementsByName("email")[0].value = document.getElementById("email").innerHTML;
     document.getElementsByName("gender")[0].value = document.getElementById("gender").innerHTML;
     document.getElementsByName("age")[0].value = document.getElementById("age").innerHTML;
