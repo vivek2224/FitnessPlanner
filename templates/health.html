@@ -57,7 +57,9 @@
         </div>
     </div>
     <!--Display most recent health information-->
-    <div class="container" style = "padding-left: 10%; padding-right: 10%; padding-top: 15px">
+    <div class="container" >
+      <div style = "padding-left: 10%; padding-right: 10%; padding-top: 15px">
+        <h3><b>Current Health Data</b></h3>
         <div style ="overflow: auto; float: left;left:0;top:0;padding: 3px">
             <label style="font-size: 20px">BMI: </label><td id="bmi">{{bmi}}</td><span id="bmidesc"></span><br>
             <label style="font-size: 19px">BMR: </label><td>{{bmr}}</td><td>   calories/day</td>
@@ -68,10 +70,13 @@
             <label style="border: #333333">Current Weight:</label><td>{{weight}}</td><br>
         </div>
      </div>
+    </div>
      <!--Chart for user weight data-->
-     <div class="container" style = "padding-left: 10%; padding-right: 10%; padding-top: 15px">
+     <div class="container">
+       <div style = "padding-left: 10%; padding-right: 10%; padding-top: 15px">
         <h3><b>Track Your Weight</b></h3>
           <canvas id="weightChart" style = "width:100%; max-width:600px; margin-bottom:50px;"></canvas>
+       </div>
     </div>
     <br><br>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>
